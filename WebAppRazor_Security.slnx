@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="WebAPI/WebAPI.csproj" Id="2693cac7-3363-48d4-9e12-9e9a9c555bae" />
+  <Project Path="WebAppRazor_Security/WebAppRazor_Security.csproj" />
+</Solution>

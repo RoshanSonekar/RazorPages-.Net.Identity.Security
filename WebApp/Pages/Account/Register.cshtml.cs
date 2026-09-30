@@ -2,15 +2,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using WebApp.Integration.Email;
 
 namespace WebApp.Pages.Account
 {
   public class RegisterModel : PageModel
-  {
-    private readonly UserManager<IdentityUser> userManager;
-		public RegisterModel(UserManager<IdentityUser> _userManager)
+	{
+		private readonly IEmailService emailService;
+		private readonly UserManager<IdentityUser> userManager;
+
+		public RegisterModel(UserManager<IdentityUser> _userManager, IEmailService _emailService)
 		{
 			userManager = _userManager;
+			emailService = _emailService;
 		}
 
 		[BindProperty]
@@ -18,24 +22,31 @@ namespace WebApp.Pages.Account
 
     public void OnGet()
     {
-    }
+		}
 
     public async Task<IActionResult> OnPostAsync()
     {
       if(!ModelState.IsValid) return Page();
 
-      // validate email (otional)
       // create user
       var user = new IdentityUser
       {
         Email = registerViewModel.Email,
         UserName = registerViewModel.Email
       };
-
       var result =  await userManager.CreateAsync(user, registerViewModel.Password);
+
       if (result.Succeeded)
-        return RedirectToPage("/Account/Login");
-      else
+      {
+        // generate token
+        var emailConfirmationToken =  await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        // send token via email
+        await emailService.Send(new EmailConfirmationModelRequest() { Email="roshansonekar@gmail.com", Subject="Testing API", MessageBody= emailConfirmationToken });
+
+				return Redirect(Url.PageLink(pageName: "/Account/ConfirmEmail", values: new { userId = user.Id, token = emailConfirmationToken }) ?? string.Empty);
+			}
+			else
       {
         foreach (var error in result.Errors)
           ModelState.AddModelError("Sign-Up", error.Description);

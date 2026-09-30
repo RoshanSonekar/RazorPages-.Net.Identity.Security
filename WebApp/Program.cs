@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using WebApp.Integration.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options=>
 	options.User.RequireUniqueEmail = true;
 	options.SignIn.RequireConfirmedEmail = true;
 })
-.AddEntityFrameworkStores<ApplicationDbContext>();
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -35,6 +37,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 	options.AccessDeniedPath = "/Account/AccessDenied"; // Redirect here policy-claim not matched. Ex- 'Department >> HR'
 
 });
+
+// add web api for email notification
+builder.Services.AddHttpClient("EmailNotificationAPI", client =>
+{
+	client.BaseAddress = new Uri("your service or api here");
+});
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 
 var app = builder.Build();

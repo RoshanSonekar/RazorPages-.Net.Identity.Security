@@ -38,13 +38,14 @@ namespace WebApp.Pages.Account
 
       if (result.Succeeded)
       {
-        // generate token
+        // generate token and link
         var emailConfirmationToken =  await userManager.GenerateEmailConfirmationTokenAsync(user);
+				var confirmationLink = Url.PageLink(pageName: "/Account/ConfirmEmail", values: new { userId = user.Id, token = emailConfirmationToken });
 
-        // send token via email
-        await emailService.Send(new EmailConfirmationModelRequest() { Email="roshansonekar@gmail.com", Subject="Testing API", MessageBody= emailConfirmationToken });
+				// send token via email
+				await emailService.Send(new EmailConfirmationModelRequest() { Email=user.Email, Subject="Verify Email", MessageBody= $"Please click on this link to confirm your email - { confirmationLink }" });
 
-				return Redirect(Url.PageLink(pageName: "/Account/ConfirmEmail", values: new { userId = user.Id, token = emailConfirmationToken }) ?? string.Empty);
+        return RedirectToPage("/Account/login");
 			}
 			else
       {

@@ -41,7 +41,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 // add web api for email notification
 builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
-	client.BaseAddress = new Uri("your service or api here");
+	client.BaseAddress = new Uri("you email service");
 });
 builder.Services.AddTransient<IEmailService, EmailService>();
 

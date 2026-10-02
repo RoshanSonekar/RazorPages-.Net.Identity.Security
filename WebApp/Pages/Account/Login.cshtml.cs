@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Security.Claims;
+using WebApp.Data.Account;
 using WebApp.Integration.Email;
 
 namespace WebApp.Pages.Account;
 
 public class LoginModel : PageModel
 {
-	private readonly SignInManager<IdentityUser> signInManager;
-	public LoginModel(SignInManager<IdentityUser> _signInManager)
+	private readonly SignInManager<User> signInManager;
+	public LoginModel(SignInManager<User> _signInManager)
 	{
 		signInManager = _signInManager;
 	}

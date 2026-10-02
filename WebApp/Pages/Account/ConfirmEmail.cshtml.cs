@@ -1,15 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using WebApp.Data.Account;
 
 namespace WebApp.Pages.Account
 {
 	public class ConfirmEmailModel : PageModel
 	{
 
-		private readonly UserManager<IdentityUser> userManager;
+		private readonly UserManager<User> userManager;
 		public string Message { get; set; } = string.Empty;
-		public ConfirmEmailModel(UserManager<IdentityUser> _userManager)
+		public ConfirmEmailModel(UserManager<User> _userManager)
 		{
 			userManager = _userManager;
 		}

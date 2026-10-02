@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using WebApp.Data.Account;
 
 namespace WebApp.Pages.Account
 {
   public class LogoutModel : PageModel
   {
-    private readonly SignInManager<IdentityUser> signInManager;
-		public LogoutModel(SignInManager<IdentityUser> _signInManager)
+    private readonly SignInManager<User> signInManager;
+		public LogoutModel(SignInManager<User> _signInManager)
 		{
 			signInManager = _signInManager;
 		}

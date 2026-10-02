@@ -1,7 +1,7 @@
 ﻿@if (User is not null && User.Identity is not null && User.Identity.IsAuthenticated)
 {
     <form method="post" class="form-check-inline" asp-page="/Account/Logout">
-        Welcome:  @User.Identity.Name
+        Welcome:  @User.Identity.Name (@User.Claims.First(c => c.Type == "Designation").Value)
         <button type="submit" class="ml-2 btn btn-link">Logout</button>
     </form>
 }

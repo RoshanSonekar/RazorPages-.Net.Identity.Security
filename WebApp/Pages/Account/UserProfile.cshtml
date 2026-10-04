@@ -12,7 +12,7 @@
                 <label asp-for="UserProfile.Email">   </label>
             </div>
             <div class="col-5">
-                <input type="text" asp-for="UserProfile.Email" class="form-control" />
+                <input type="text" asp-for="UserProfile.Email" class="form-control" readonly />
                 <span class="text-danger" asp-validation-for="UserProfile.Email"> </span>
             </div>
         </div>
@@ -22,7 +22,7 @@
                 <label asp-for="UserProfile.Department">   </label>
             </div>
             <div class="col-5">
-                <input type="text" asp-for="UserProfile.Department" class="form-control" readonly/>
+                <input type="text" asp-for="UserProfile.Department" class="form-control" />
                 <span class="text-danger" asp-validation-for="UserProfile.Department"> </span>
             </div>
         </div>
@@ -50,6 +50,5 @@
         <div class="alert alert-success" role="alert">
             @Model.SuccessMessage
         </div>
-    }
-    )
+    } 
 </div>

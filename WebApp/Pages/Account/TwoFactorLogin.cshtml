@@ -1,0 +1,30 @@
+﻿@page
+@model WebApp.Pages.Account.TwoFactorLoginModel
+@{
+}
+
+<p>
+    <h3>Please enter the code sent to your email</h3>
+</p>
+<div class="container border" style="padding:20px">
+    <form method="post">
+        <div class="text-danger" asp-validation-summary="All"></div>
+        <div class="form-group row">
+            <div class="col-2">
+                <label asp-for="TwoFactorLoginViewModel.SecurityCode">   </label>
+            </div>
+            <div class="col">
+                <input type="text" asp-for="TwoFactorLoginViewModel.SecurityCode" class="form-control" />
+                <span class="text-danger" asp-validation-for="TwoFactorLoginViewModel.SecurityCode"> </span>
+            </div>
+        </div>  
+        <div class="form-group row">
+            <div class="col-2"> 
+                <input type="submit" class="btn btn-primary" value="Verify" />
+            </div>
+            <div class="col">
+                <input type="hidden" asp-for="TwoFactorLoginViewModel.RememberMe" />
+            </div>
+        </div>
+    </form>
+</div>

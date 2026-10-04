@@ -55,7 +55,7 @@ namespace WebApp.Pages.Account
 				var confirmationLink = Url.PageLink(pageName: "/Account/ConfirmEmail", values: new { userId = user.Id, token = emailConfirmationToken });
 
 				// send token via email
-				//await emailService.Send(new EmailConfirmationModelRequest() { Email=user.Email, Subject="Verify Email", MessageBody= $"Please click on this link to confirm your email - { confirmationLink }" });
+				await emailService.Send(new EmailConfirmationModelRequest() { Email=user.Email, Subject="Verify Email", MessageBody= $"Please click on this link to confirm your email - { confirmationLink }" });
 
         return RedirectToPage("/Account/login");
 			}

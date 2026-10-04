@@ -39,6 +39,9 @@ public class LoginModel : PageModel
 			return RedirectToPage("/Index");
 		else
 		{
+			if(result.RequiresTwoFactor) 
+				return RedirectToPage("/Account/TwoFactorLogin", new { Credential.Email, Credential.RememberMe });
+
 			if (result.IsLockedOut)
 				ModelState.AddModelError("Login", "You are locked out.");
 			else

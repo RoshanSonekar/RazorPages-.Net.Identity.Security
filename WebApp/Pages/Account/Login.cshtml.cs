@@ -39,8 +39,19 @@ public class LoginModel : PageModel
 			return RedirectToPage("/Index");
 		else
 		{
-			if(result.RequiresTwoFactor) 
-				return RedirectToPage("/Account/TwoFactorLogin", new { Credential.Email, Credential.RememberMe });
+			if (result.RequiresTwoFactor) // setup type in IdentityOptions.SignIn.TwoFactorProvider = "Email" or "Authenticator"
+			{
+				// for email security code, redirect to TwoFactorLogin page
+				// return RedirectToPage("/Account/TwoFactorLogin", new { Credential.Email, Credential.RememberMe });
+
+				// for authenticator app security code, redirect to TwoFactorLoginWithAuthenticatorApp page
+				return RedirectToPage("/Account/TwoFactorLoginWithAuthenticatorApp", 
+					new 
+					{ 
+						// Credential.Email, 
+						Credential.RememberMe 
+					});
+			}
 
 			if (result.IsLockedOut)
 				ModelState.AddModelError("Login", "You are locked out.");

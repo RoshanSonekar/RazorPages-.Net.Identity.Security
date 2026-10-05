@@ -7,7 +7,7 @@ using WebApp.Integration.Email;
 
 namespace WebApp.Pages.Account
 {
-	public class TwoFactorLoginModel : PageModel
+	public class TwoFactorLoginModel : PageModel // Via Email
 	{
 		[BindProperty]
 		public TwoFactorLoginViewModel TwoFactorLoginViewModel { get; set; }

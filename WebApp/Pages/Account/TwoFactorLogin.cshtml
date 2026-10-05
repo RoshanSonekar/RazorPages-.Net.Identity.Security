@@ -4,7 +4,7 @@
 }
 
 <p>
-    <h3>Please enter the code sent to your email</h3>
+    <h3>Please enter the code sent to your email @Model.TwoFactorLoginViewModel.Email</h3>
 </p>
 <div class="container border" style="padding:20px">
     <form method="post">
@@ -24,6 +24,7 @@
             </div>
             <div class="col">
                 <input type="hidden" asp-for="TwoFactorLoginViewModel.RememberMe" />
+                <input type="hidden" asp-for="TwoFactorLoginViewModel.Email" />
             </div>
         </div>
     </form>

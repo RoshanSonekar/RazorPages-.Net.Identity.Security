@@ -28,7 +28,7 @@ namespace WebApp.Pages.Account
 			var user = await userManager.FindByEmailAsync(email);
 			TwoFactorLoginViewModel.SecurityCode = string.Empty;
 			TwoFactorLoginViewModel.RememberMe = rememberMe;
-
+			TwoFactorLoginViewModel.Email = email;
 			if (user is not null)
 			{
 				var securityCode = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
@@ -65,6 +65,7 @@ namespace WebApp.Pages.Account
 
 	public class TwoFactorLoginViewModel
 	{
+		public string Email { get; set; } = string.Empty;
 		[Required]
 		[Display(Name = "Security Code")]
 		public string SecurityCode { get; set; } = string.Empty;

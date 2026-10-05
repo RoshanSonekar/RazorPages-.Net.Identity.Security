@@ -1,0 +1,55 @@
+﻿@page
+@model WebApp.Pages.Account.AuthenticatorWithMFASetupModel
+@{
+}
+
+
+<h3>Step 1: Authenticator Setup</h3>
+<p>
+    Please enter the following key in your authenticator app
+</p>
+<p>
+    @Model.ViewModel.AuthenticatorKey
+</p>
+
+<h3>Step 2: Verify Setup</h3>
+<p>
+    Please verify the setup by entering the generated code from your authenticator app
+</p>
+
+<form method="post">
+    <form method="post">
+        @if (Model.IsMFAEnabled)
+        {
+            <div class="alert alert-success" role="alert">
+                MFA is enabled for your account
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger" role="alert">
+                MFA is not enabled for your account
+            </div>
+        }
+        
+        <div class="text-danger" asp-validation-summary="All"></div>
+        <div class="form-group row">
+            <div class="col-2">
+                <label asp-for="ViewModel.SecurityCode">   </label>
+            </div>
+            <div class="col">
+                <input type="text" asp-for="ViewModel.SecurityCode" class="form-control" />
+                <span class="text-danger" asp-validation-for="ViewModel.SecurityCode"> </span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-2">
+                <input type="submit" class="btn btn-primary" value="Verify" />
+            </div> 
+            <div class="col">
+                <input type="hidden" asp-for="ViewModel.AuthenticatorKey" />
+            </div>
+        </div>
+        
+    </form>
+</form> 

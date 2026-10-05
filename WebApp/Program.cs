@@ -12,7 +12,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-	options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServer"));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerAzure")); // use "SQLServer" for local development
 });
 
 // Add Identity

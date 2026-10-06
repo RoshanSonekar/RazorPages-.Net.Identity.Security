@@ -11,18 +11,24 @@ namespace WebApp.Pages.Account
 	{
 		private readonly IEmailService emailService;
 		private readonly UserManager<User> userManager;
+		//private readonly IConfigurationManager configurationManager;
 
-		public RegisterModel(UserManager<User> _userManager, IEmailService _emailService)
+		public RegisterModel(UserManager<User> _userManager, IEmailService _emailService)//, IConfigurationManager _configurationManager)
 		{
 			userManager = _userManager;
 			emailService = _emailService;
+			////configurationManager = _configurationManager;
+			//TwoFAAuthenticationType = _configurationManager["2FAAuthenticationType"] ?? "Email";
 		}
 
 		[BindProperty]
     public RegisterViewModel registerViewModel { get; set; } = new RegisterViewModel();
 
-    public void OnGet()
-    {
+		//[BindProperty]
+		//public string TwoFAAuthenticationType { get; set; } = "Email"; // or "AuthenticatorApp"
+
+		public void OnGet()
+		{
 		}
 
     public async Task<IActionResult> OnPostAsync()
@@ -57,7 +63,7 @@ namespace WebApp.Pages.Account
 				// send token via email
 				await emailService.Send(new EmailConfirmationModelRequest() { Email=user.Email, Subject="Verify Email", MessageBody= $"Please click on this link to confirm your email - { confirmationLink }" });
 
-        return RedirectToPage("/Account/login");
+        return RedirectToPage("/Account/SentConfirmEmailLink");
 			}
 			else
       {

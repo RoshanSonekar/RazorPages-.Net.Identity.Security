@@ -34,6 +34,7 @@ namespace WebApp.Pages.Account
 
 				var key = await userManager.GetAuthenticatorKeyAsync(user);
         ViewModel.AuthenticatorKey = key??string.Empty;
+				ViewModel.QRCodeBytes = GenerateQRCode("MyApp", ViewModel.AuthenticatorKey, user.Email??string.Empty);
 			}
 		}
 
@@ -64,7 +65,20 @@ namespace WebApp.Pages.Account
 				return Page();
 			}
     }
-  }
+
+		private Byte[] GenerateQRCode(string provider, string authenticatorKey, string email)
+		{
+			var qrCodeData = $"otpauth://totp/{provider}:{email}?secret={authenticatorKey}&issuer={provider}";
+			using (var qrGenerator = new QRCoder.QRCodeGenerator())
+			{
+				var qrCode = qrGenerator.CreateQrCode(qrCodeData, QRCoder.QRCodeGenerator.ECCLevel.Q);
+				using (var qrCodeImage = new QRCoder.PngByteQRCode(qrCode))
+				{
+					return qrCodeImage.GetGraphic(20);
+				}
+			}
+		}
+	}
 
 	public class AuthenticatorWithMFASetupViewModel
 	{
@@ -73,5 +87,7 @@ namespace WebApp.Pages.Account
     [Required]
     [Display(Name = "Security Code")]
     public string SecurityCode { get; set; } = string.Empty;
+
+		public Byte[] QRCodeBytes { get; set; }
 	}
 }

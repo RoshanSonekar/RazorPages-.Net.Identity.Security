@@ -12,7 +12,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerAzure")); // use "SQLServer" for local development
+	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")); 
 });
 
 // Add Identity
@@ -27,7 +27,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options=>
 	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
 
 	options.User.RequireUniqueEmail = true;
-	options.SignIn.RequireConfirmedEmail = true;
+	options.SignIn.RequireConfirmedEmail = true;	
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -36,6 +36,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
 	options.LoginPath = "/Account/Login"; // Redirect here if not autheticated
 	options.AccessDeniedPath = "/Account/AccessDenied"; // Redirect here policy-claim not matched. Ex- 'Department >> HR'
+	options.SlidingExpiration = true;
 
 });
 
@@ -43,7 +44,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
 	//client.BaseAddress = new Uri("your endpoint");
-	client.BaseAddress = new Uri("https://emailnotificationapi-h7gbfbchcxhkauax.southafricanorth-01.azurewebsites.net/api/NotificationService/Email/");
+	client.BaseAddress = new Uri(builder.Configuration["EmailNotification:Endpoint"]);// "https://emailnotificationapi-h7gbfbchcxhkauax.southafricanorth-01.azurewebsites.net/api/NotificationService/Email/");
 });
 builder.Services.AddTransient<IEmailService, EmailService>();
 

@@ -3,32 +3,41 @@
 @{
 }
 
-
+ 
+ 
+<div style="color: orange;"> MFA is mandatory, kindly finish the setup </div>
+        
+    
+ 
+ 
 <h3>Step 1: Authenticator Setup</h3>
 <p>
-    Please enter the following key in your authenticator app
+    Please enter the following key in your authenticator app or Scan the QR code to set up your authenticator app.
 </p>
 <p>
     @Model.ViewModel.AuthenticatorKey
 </p>
+<p>
+    @if (Model.ViewModel.QRCodeBytes != null)
+    {
+        <img src="@string.Format("data:image/png;base64,{0}",Convert.ToBase64String(Model.ViewModel.QRCodeBytes))"
+        width="300" 
+        height="300" />
+    }
+</p>
 
 <h3>Step 2: Verify Setup</h3>
 <p>
-    Please verify the setup by entering the generated code from your authenticator app
+    MFA is mandatory. Please verify the setup by entering the generated code from your authenticator app
 </p>
 
 <form method="post">
     <form method="post">
+
         @if (Model.IsMFAEnabled)
         {
             <div class="alert alert-success" role="alert">
                 MFA is enabled for your account
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-danger" role="alert">
-                MFA is not enabled for your account
             </div>
         }
         
@@ -48,6 +57,7 @@
             </div> 
             <div class="col">
                 <input type="hidden" asp-for="ViewModel.AuthenticatorKey" />
+                <input type="hidden" asp-for="ViewModel.QRCodeBytes" />
             </div>
         </div>
         

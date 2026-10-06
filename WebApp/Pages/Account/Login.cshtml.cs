@@ -1,56 +1,89 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.IdentityModel.Protocols;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Security.Claims;
 using WebApp.Data.Account;
-using WebApp.Integration.Email;
 
 namespace WebApp.Pages.Account;
 
 public class LoginModel : PageModel
 {
+	// gmail Roshan@2026
+
 	private readonly SignInManager<User> signInManager;
-	public LoginModel(SignInManager<User> _signInManager)
+	private readonly IConfiguration config;
+	public LoginModel(SignInManager<User> _signInManager, IConfiguration _config)
 	{
 		signInManager = _signInManager;
+		config = _config;
 	}
+
+	public string TwoFAAuthenticationType { get; private set; } = "Email"; // or "AuthenticatorApp"
 
 	[BindProperty]
 	public CredentialViewModel Credential { get; set; } = new CredentialViewModel();
+
 	public void OnGet()
 	{
 	}
 
-	public async Task<IActionResult> OnPost()
+	public async Task<IActionResult> OnPostAsync()
 	{
+
+		TwoFAAuthenticationType = config["2FAAuthenticationType"] ?? "Email";
 		if (!ModelState.IsValid) return Page();
 
-		var result = await signInManager.PasswordSignInAsync(
-			Credential.Email,
-			Credential.Password,
-			Credential.RememberMe,
-			false);
+			 var result = await signInManager.PasswordSignInAsync(
+				Credential.Email,
+				Credential.Password,
+				isPersistent: Credential.RememberMe,
+				false);
 
 		if (result.Succeeded)
+		{
+			var loggedInuser = await signInManager.UserManager.FindByEmailAsync(Credential.Email);
+			if (loggedInuser is not null)
+			{
+				// setup authenticator app for the first time
+				var getTokenResult = await signInManager.UserManager.GetAuthenticatorKeyAsync(loggedInuser);
+				if (getTokenResult is null) // setup authenticator app for the first time
+					return RedirectToPage("/Account/AuthenticatorWithMFASetup");
+
+				var isTwoFactorEnabled = await signInManager.UserManager.GetTwoFactorEnabledAsync(loggedInuser);
+				if (!isTwoFactorEnabled)
+					return RedirectToPage("/Account/AuthenticatorWithMFASetup");
+			}
 			return RedirectToPage("/Index");
+		}
 		else
 		{
-			if (result.RequiresTwoFactor) // setup type in IdentityOptions.SignIn.TwoFactorProvider = "Email" or "Authenticator"
+			if (result.RequiresTwoFactor)
 			{
 				// for email security code, redirect to TwoFactorLogin page
-				// return RedirectToPage("/Account/TwoFactorLogin", new { Credential.Email, Credential.RememberMe });
-
+				if (TwoFAAuthenticationType == "Email")
+				{
+					return RedirectToPage("/Account/TwoFactorLogin",
+						new
+						{
+							Credential.Email,
+							Credential.RememberMe
+						});
+				}
 				// for authenticator app security code, redirect to TwoFactorLoginWithAuthenticatorApp page
-				return RedirectToPage("/Account/TwoFactorLoginWithAuthenticatorApp", 
-					new 
-					{ 
-						// Credential.Email, 
-						Credential.RememberMe 
+				else if (TwoFAAuthenticationType == "AuthenticatorApp")
+				{
+					return RedirectToPage("/Account/TwoFactorLoginWithAuthenticatorApp",
+					new
+					{
+						Credential.RememberMe
 					});
+				}
+				else
+				{
+					ModelState.AddModelError("Login", "'RequiresTwoFactor' is enableed for the user but 2FA authentication type is not defined.");
+					return Page();
+				}
 			}
 
 			if (result.IsLockedOut)
@@ -60,7 +93,6 @@ public class LoginModel : PageModel
 
 			return Page();
 		}
-
 	}
 }
    
@@ -68,6 +100,7 @@ public class CredentialViewModel
 {
 	[Required]
 	[Display(Name = "Password")]
+	[DataType(DataType.Password)]
 	public string Password { get; set; } = string.Empty;
 
 	[Required]
@@ -76,4 +109,6 @@ public class CredentialViewModel
 
 	[Display(Name = "Remember Me?")]
 	public bool RememberMe { get; set; } = false;
+
+	public bool IsTwoFactorEnabled { get; set; } = false;
 }

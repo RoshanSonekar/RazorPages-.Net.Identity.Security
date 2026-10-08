@@ -105,6 +105,7 @@ public class CredentialViewModel
 
 	[Required]
 	[Display(Name = "Email")]
+	[EmailAddress(ErrorMessage = "Invalid email address.")]
 	public string Email { get; set; } = string.Empty;
 
 	[Display(Name = "Remember Me?")]

@@ -2,6 +2,6 @@
 {
 	public interface IEmailService
 	{
-		Task Send(EmailConfirmationModelRequest emailConfirmationModelRequest);
+		Task Send(EmailConfirmationModelRequest emailConfirmationModelRequest); 
 	}
 }

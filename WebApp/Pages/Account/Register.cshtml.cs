@@ -4,28 +4,21 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using WebApp.Data.Account;
 using WebApp.Integration.Email;
-
 namespace WebApp.Pages.Account
 {
   public class RegisterModel : PageModel
 	{
+		[BindProperty]
+		public RegisterViewModel registerViewModel { get; set; } = new RegisterViewModel();
+
 		private readonly IEmailService emailService;
 		private readonly UserManager<User> userManager;
-		//private readonly IConfigurationManager configurationManager;
 
 		public RegisterModel(UserManager<User> _userManager, IEmailService _emailService)//, IConfigurationManager _configurationManager)
 		{
 			userManager = _userManager;
 			emailService = _emailService;
-			////configurationManager = _configurationManager;
-			//TwoFAAuthenticationType = _configurationManager["2FAAuthenticationType"] ?? "Email";
 		}
-
-		[BindProperty]
-    public RegisterViewModel registerViewModel { get; set; } = new RegisterViewModel();
-
-		//[BindProperty]
-		//public string TwoFAAuthenticationType { get; set; } = "Email"; // or "AuthenticatorApp"
 
 		public void OnGet()
 		{

@@ -13,6 +13,8 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 		[BindProperty]
 		public ChangePasswordViewModel changePasswordViewModel { get; set; }
 
+		[BindProperty]
+		public string Email { get; set; } = string.Empty;
 
 		private readonly SignInManager<User> signInManager;
 		public ChangePasswordModel(SignInManager<User> _signInManager)
@@ -21,19 +23,21 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 			changePasswordViewModel = new ChangePasswordViewModel();	
 		}
 
-		public void OnGet(string Email)
+		public void OnGet()
     {
-      changePasswordViewModel.Email = Email;
-    }
+			// If someone navigates directly via GET, we pre-fill the email from the logged-in user context
+			if (User.Identity?.IsAuthenticated == true)
+			{
+				Email = User.Identity.Name ?? string.Empty;
+			}
+		}
 
-		public async Task<IActionResult> OnPostAsync(string Email)
-		{
-			changePasswordViewModel.Email = Email;
-
+		public async Task<IActionResult> OnPostAsync()
+		{ 
 			if (!ModelState.IsValid) return Page();
 
 			bool success = false;
-			var user = await signInManager.UserManager.FindByEmailAsync(changePasswordViewModel.Email);
+			var user = await signInManager.UserManager.FindByEmailAsync(Email);
 			if (user is null)
 			{
 				ModelState.AddModelError(string.Empty, "User not found.");
@@ -60,9 +64,7 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 	}
 
   public class ChangePasswordViewModel
-	{
-		public string Email { get; set; } = string.Empty;
-
+	{ 
 		[Required]
 		[DataType(DataType.Password)]
 		[Display(Name = "Current Password")]

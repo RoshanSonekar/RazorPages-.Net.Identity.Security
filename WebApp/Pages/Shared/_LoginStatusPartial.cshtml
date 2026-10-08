@@ -4,7 +4,7 @@
         Welcome:  @User.Identity.Name (@User.Claims.First(c => c.Type == "Designation").Value)
         <button type="submit" class="ml-2 btn btn-link">Logout</button>
     </form>
-    <form method="post" class="form-check-inline" asp-page="/Account/UserLoginActivities/ChangePassword"> 
+    <form method="get" class="form-check-inline" asp-page="/Account/UserLoginActivities/ChangePassword"> 
         <input type="hidden" name="Email" value="@User.Identity.Name" />
         <button type="submit" class="ml-2 btn btn-link">Change Password</button>
     </form>

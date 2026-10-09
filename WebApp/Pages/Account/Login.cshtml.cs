@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Protocols;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Eventing.Reader;
 using WebApp.Data.Account;
 
 namespace WebApp.Pages.Account;
@@ -18,7 +19,7 @@ public class LoginModel : PageModel
 		signInManager = _signInManager;
 		config = _config;
 	}
-	public string TwoFAAuthenticationType { get; private set; } = "Email"; // or "AuthenticatorApp"
+	public string TwoFAAuthenticationType { get; private set; } = "None"; // "Email" or "AuthenticatorApp"
 
 	[BindProperty]
 	public CredentialViewModel Credential { get; set; } = new CredentialViewModel();
@@ -31,8 +32,6 @@ public class LoginModel : PageModel
 
 	public async Task<IActionResult> OnPostAsync()
 	{
-
-		TwoFAAuthenticationType = config["2FAAuthenticationType"] ?? "Email";
 		if (!ModelState.IsValid) return Page();
 
 			 var result = await signInManager.PasswordSignInAsync(
@@ -41,19 +40,24 @@ public class LoginModel : PageModel
 				isPersistent: Credential.RememberMe,
 				false);
 
+		TwoFAAuthenticationType = config["2FAAuthenticationType"] ?? "Email";
 		if (result.Succeeded)
 		{
-			var loggedInuser = await signInManager.UserManager.FindByEmailAsync(Credential.Email);
-			if (loggedInuser is not null)
-			{
-				// setup authenticator app for the first time
-				var getTokenResult = await signInManager.UserManager.GetAuthenticatorKeyAsync(loggedInuser);
-				if (getTokenResult is null) // setup authenticator app for the first time
-					return RedirectToPage("/Account/AuthenticatorWithMFASetup");
+			bool mfaRequired = bool.Parse(config["MFARequired"]?? "false");
+			if (mfaRequired && TwoFAAuthenticationType == "AuthenticatorApp")
+			{                                         
+				var loggedInuser = await signInManager.UserManager.FindByEmailAsync(Credential.Email);
+				if (loggedInuser is not null)
+				{
+					// setup authenticator app for the first time               
+					var getTokenResult = await signInManager.UserManager.GetAuthenticatorKeyAsync(loggedInuser);
+					if (getTokenResult is null) // setup authenticator app for the first time
+						return RedirectToPage("/Account/AuthenticatorWithMFASetup");
 
-				var isTwoFactorEnabled = await signInManager.UserManager.GetTwoFactorEnabledAsync(loggedInuser);
-				if (!isTwoFactorEnabled)
-					return RedirectToPage("/Account/AuthenticatorWithMFASetup");
+					var isTwoFactorEnabled = await signInManager.UserManager.GetTwoFactorEnabledAsync(loggedInuser);
+					if (!isTwoFactorEnabled)
+						return RedirectToPage("/Account/AuthenticatorWithMFASetup");
+				}
 			}
 			return RedirectToPage("/Index");
 		}
@@ -61,6 +65,10 @@ public class LoginModel : PageModel
 		{
 			if (result.RequiresTwoFactor)
 			{
+				var loggedInuser = await signInManager.UserManager.FindByEmailAsync(Credential.Email);
+				if (loggedInuser is not null)
+					TwoFAAuthenticationType = loggedInuser.AuthenticationType ?? "Email";
+				
 				// for email security code, redirect to TwoFactorLogin page
 				if (TwoFAAuthenticationType == "Email")
 				{

@@ -6,6 +6,21 @@ using WebApp.Data;
 using WebApp.Data.Account;
 using WebApp.Integration.Email;
 
+//ALTER TABLE[dbo].[AspNetUsers]
+//ADD AuthenticationType varchar(16) NOT NULL DEFAULT 'Email';
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD FirstName varchar(100) NOT NULL;
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD LastName varchar(100) NOT NULL;
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD DateOfBirth Datetime;
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD FirstName varchar(100) NOT NULL;
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD LastName varchar(100) NOT NULL;
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD DateOfBirth Datetime;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,7 +37,6 @@ if (builder.Configuration["Feature"] == "Global")
 	connectionString = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
 	#endregion
 }
-
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 { 

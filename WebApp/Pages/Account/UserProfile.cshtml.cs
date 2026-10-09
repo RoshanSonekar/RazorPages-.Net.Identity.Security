@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WebApp.Data.Account;
@@ -11,6 +12,9 @@ namespace WebApp.Pages.Account
 	[Authorize]
 	public class UserProfileModel : PageModel
 	{
+		// Lists to hold dropdown items for the UI
+		public List<SelectListItem> DepartmentOptions { get; set; } = new List<SelectListItem>();
+		public List<SelectListItem> DesignationOptions { get; set; } = new List<SelectListItem>();
 		private readonly UserManager<User> userManager;
 
 		[BindProperty]
@@ -39,7 +43,8 @@ namespace WebApp.Pages.Account
 
 		public async Task<IActionResult> OnGetAsync()
 		{
-			SuccessMessage = string.Empty;
+			SuccessMessage = string.Empty;			
+			PopulateDropdownOptions();
 			if (User.Identity?.IsAuthenticated == true)
 			{
 				Email = User.Identity.Name ?? string.Empty;
@@ -47,9 +52,16 @@ namespace WebApp.Pages.Account
 
 				if (user is not null)
 				{
+					// Map Core properties from User Entity to ViewModel 
+					UserProfileView.FirstName = user.FirstName;
+					UserProfileView.LastName = user.LastName;
+					UserProfileView.DateOfBirth = user.DateOfBirth;
+
+					// Map Claims
 					UserProfileView.Department = departmentClaim?.Value ?? string.Empty;
 					UserProfileView.Designation = designationClaim?.Value ?? string.Empty;
-					CurrentPictureBytes = user.ProfilePicture; // Fetch binary from SQL
+
+					CurrentPictureBytes = user.ProfilePicture;
 				}
 			}
 			return Page();
@@ -57,7 +69,7 @@ namespace WebApp.Pages.Account
 
 		public async Task<IActionResult> OnPostAsync()
 		{
-			// 1. Run custom file validation checks before validating the ModelState
+			// 1. Run custom file validation checks
 			if (UploadedPicture is not null)
 			{
 				if (UploadedPicture.Length > MaxFileSizeBytes)
@@ -74,7 +86,8 @@ namespace WebApp.Pages.Account
 
 			if (!ModelState.IsValid)
 			{
-				// Reload picture from the database so it stays visible on validation failure
+				// Repopulate UI dependencies on execution failures
+				PopulateDropdownOptions();
 				var rawUser = await userManager.FindByEmailAsync(Email);
 				CurrentPictureBytes = rawUser?.ProfilePicture;
 				return Page();
@@ -85,6 +98,11 @@ namespace WebApp.Pages.Account
 				var (user, departmentClaim, designationClaim) = await GetUserInfoAsync(Email);
 				if (user is null)
 					return NotFound();
+
+				// Update baseline context variables directly on identity record
+				user.FirstName = UserProfileView.FirstName;
+				user.LastName = UserProfileView.LastName;
+				user.DateOfBirth = UserProfileView.DateOfBirth ?? DateTime.MinValue;
 
 				// Update Department Claim
 				if (departmentClaim is not null)
@@ -98,7 +116,7 @@ namespace WebApp.Pages.Account
 				else
 					await userManager.AddClaimAsync(user, new Claim("Designation", UserProfileView.Designation ?? string.Empty));
 
-				// 2. Process and save the file to SQL Server if provided
+				// 2. Process and save the file if provided
 				if (UploadedPicture is not null)
 				{
 					using (var memoryStream = new MemoryStream())
@@ -106,15 +124,11 @@ namespace WebApp.Pages.Account
 						await UploadedPicture.CopyToAsync(memoryStream);
 						user.ProfilePicture = memoryStream.ToArray();
 					}
-					await userManager.UpdateAsync(user);
-					CurrentPictureBytes = user.ProfilePicture;
 				}
-				else
-				{
-					// Retain current image binary data if no new file is uploaded
-					var freshUser = await userManager.FindByEmailAsync(Email);
-					CurrentPictureBytes = freshUser?.ProfilePicture;
-				}
+
+				// Commit core properties changes to database
+				await userManager.UpdateAsync(user);
+				CurrentPictureBytes = user.ProfilePicture;
 
 				SuccessMessage = "User profile updated successfully.";
 			}
@@ -123,10 +137,10 @@ namespace WebApp.Pages.Account
 				ModelState.AddModelError("User Profile", "An error occurred while updating the user profile.");
 			}
 
+			PopulateDropdownOptions();
 			return Page();
 		}
 
-		// Explicit handler to clear image bytes from the user record
 		public async Task<IActionResult> OnPostRemovePictureAsync()
 		{
 			var user = await userManager.FindByEmailAsync(Email);
@@ -152,14 +166,49 @@ namespace WebApp.Pages.Account
 			}
 			return (null, null, null);
 		}
+
+		private void PopulateDropdownOptions()
+		{
+			DepartmentOptions = new List<SelectListItem>
+						{
+								new SelectListItem { Value = "", Text = "-- Select Department --" },
+								new SelectListItem { Value = "HR", Text = "Human Resources" },
+								new SelectListItem { Value = "IT", Text = "Information Technology" },
+								new SelectListItem { Value = "Finance", Text = "Finance" },
+								new SelectListItem { Value = "Marketing", Text = "Marketing" }
+						};
+
+			DesignationOptions = new List<SelectListItem>
+						{
+								new SelectListItem { Value = "", Text = "-- Select Designation --" },
+								new SelectListItem { Value = "Manager", Text = "Manager" },
+								new SelectListItem { Value = "Developer", Text = "Developer" },
+								new SelectListItem { Value = "Analyst", Text = "Analyst" },
+								new SelectListItem { Value = "Executive", Text = "Executive" }
+						};
+		}
 	}
 
 	public class UserProfileViewModel
 	{
 		[Required]
-		public string? Department { get; set; }
+		[Display(Name = "First Name")]
+		public string FirstName { get; set; } = string.Empty;
 
 		[Required]
-		public string? Designation { get; set; }
-	}
+		[Display(Name = "Last Name")]
+		public string LastName { get; set; } = string.Empty;
+
+		[Required]
+		[DataType(DataType.Date)]
+		[MinimumAge(18, ErrorMessage = "You must be 18 years or older.")]
+		[Display(Name = "Date of Birth")]
+		public DateTime? DateOfBirth { get; set; }
+
+		[Required(ErrorMessage = "Please select a department.")]
+		public string Department { get; set; } = string.Empty;
+
+		[Required(ErrorMessage = "Please select a designation.")]
+		public string Designation { get; set; } = string.Empty;
+	} 
 }

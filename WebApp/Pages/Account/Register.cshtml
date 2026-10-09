@@ -7,51 +7,139 @@
 <div class="container border" style="padding:20px">
     <form method="post">
         <div class="text-danger" asp-validation-summary="All"></div>
+
+        <!-- First Name -->
         <div class="mb-3 row">
             <div class="col-2">
-                <label asp-for="registerViewModel.Email">   </label>
+                <label asp-for="registerViewModel.FirstName" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input type="text" asp-for="registerViewModel.FirstName" class="form-control" />
+                <span class="text-danger" asp-validation-for="registerViewModel.FirstName"></span>
+            </div>
+        </div>
+
+        <!-- Last Name -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="registerViewModel.LastName" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input type="text" asp-for="registerViewModel.LastName" class="form-control" />
+                <span class="text-danger" asp-validation-for="registerViewModel.LastName"></span>
+            </div>
+        </div>
+
+        <!-- Date of Birth Calendar Picker -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="registerViewModel.DateOfBirth" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input type="date"
+                       id="dobInput"
+                       asp-for="registerViewModel.DateOfBirth"
+                       max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                       class="form-control" />
+                <span class="text-danger" asp-validation-for="registerViewModel.DateOfBirth"></span>
+                <!-- Optional client-side message container -->
+                <div id="ageWarning" class="text-danger small mt-1" style="display:none;">
+                    You must be at least 18 years old to sign up.
+                </div>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="registerViewModel.Email" class="form-label"></label>
             </div>
             <div class="col-5">
                 <input type="text" asp-for="registerViewModel.Email" class="form-control" />
-                <span class="text-danger" asp-validation-for="registerViewModel.Email"> </span>
+                <span class="text-danger" asp-validation-for="registerViewModel.Email"></span>
             </div>
         </div>
 
+        <!-- Password -->
         <div class="mb-3 row">
             <div class="col-2">
-                <label asp-for="registerViewModel.Password">   </label>
+                <label asp-for="registerViewModel.Password" class="form-label"></label>
             </div>
             <div class="col-5">
                 <input type="password" asp-for="registerViewModel.Password" class="form-control" />
-                <span class="text-danger" asp-validation-for="registerViewModel.Password"> </span>
-            </div>
-        </div>
-        <div class="mb-3 row">
-            <div class="col-2">
-                <label asp-for="registerViewModel.Department">   </label>
-            </div>
-            <div class="col-5">
-                <input type="text" asp-for="registerViewModel.Department" class="form-control" />
-                <span class="text-danger" asp-validation-for="registerViewModel.Department"> </span>
-            </div>
-        </div>
-        <div class="mb-3 row">
-            <div class="col-2">
-                <label asp-for="registerViewModel.Designation">   </label>
-            </div>
-            <div class="col-5">
-                <input type="text" asp-for="registerViewModel.Designation" class="form-control" />
-                <span class="text-danger" asp-validation-for="registerViewModel.Designation"> </span>
+                <span class="text-danger" asp-validation-for="registerViewModel.Password"></span>
             </div>
         </div>
 
+        <!-- Department Dropdown Selection -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="registerViewModel.Department" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <select asp-for="registerViewModel.Department" asp-items="Model.DepartmentOptions" class="form-select"></select>
+                <span class="text-danger" asp-validation-for="registerViewModel.Department"></span>
+            </div>
+        </div>
+
+        <!-- Designation Dropdown Selection -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="registerViewModel.Designation" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <select asp-for="registerViewModel.Designation" asp-items="Model.DesignationOptions" class="form-select"></select>
+                <span class="text-danger" asp-validation-for="registerViewModel.Designation"></span>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
         <div class="mb-3 row">
             <div class="col-2">
                 <input type="submit" class="btn btn-primary" value="Sign-Up" />
             </div>
             <div class="col-5">
             </div>
-
         </div>
     </form>
 </div>
+
+
+@section Scripts {
+    <script>
+        document.getElementById('dobInput').addEventListener('change', function () {
+            const dobValue = this.value;
+            const warningElement = document.getElementById('ageWarning');
+
+            if (!dobValue) {
+                // Reset styling if the field is cleared
+                this.classList.remove('is-invalid');
+                warningElement.style.display = 'none';
+                return;
+            }
+
+            const dob = new Date(dobValue);
+            const today = new Date();
+
+            // Calculate age roughly by year difference
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+
+            // Adjust age if the birthday hasn't occurred yet this year
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+
+            // Check if age is under 18
+            if (age < 18) {
+                // Bootstrap class for red borders/highlighting
+                this.classList.add('is-invalid');
+                warningElement.style.display = 'block';
+            } else {
+                // Clear the red highlighting if they are 18 or older
+                this.classList.remove('is-invalid');
+                warningElement.style.display = 'none';
+            }
+        });
+    </script>
+}

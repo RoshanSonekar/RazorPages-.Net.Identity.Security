@@ -24,9 +24,18 @@
             </div>
 
             <form id="account" method="post">
-                <!-- Server-Side Validation Summary -->
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
+                 <!-- Generic Red Alert Message for Invalid Credentials -->
+                @if (ModelState.TryGetValue("InvalidCredentials", out var credentialErrors) && credentialErrors.Errors.Any())
+                {
+                    <div class="alert alert-danger" role="alert" style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; font-weight: 500;">
+                        ❌ @credentialErrors.Errors.First().ErrorMessage
+                    </div>
+                }
+
+                <!-- Fallback/Other Validation Summary (e.g., Lockout messages) -->
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert" style="color: #dc3545; font-size: 0.9rem;"></div>
+                  
                 <!-- Email / Username Input Group -->
                 <div class="input-group">
                     <label asp-for="Credential.Email">Email Address</label>

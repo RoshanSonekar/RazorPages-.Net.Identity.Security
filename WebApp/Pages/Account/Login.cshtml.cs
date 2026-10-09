@@ -18,14 +18,12 @@ public class LoginModel : PageModel
 		signInManager = _signInManager;
 		config = _config;
 	}
-
 	public string TwoFAAuthenticationType { get; private set; } = "Email"; // or "AuthenticatorApp"
 
 	[BindProperty]
 	public CredentialViewModel Credential { get; set; } = new CredentialViewModel();
 	[BindProperty]
 	public string ReturnUrl { get; set; } = string.Empty;
-
 
 	public void OnGet()
 	{
@@ -92,7 +90,7 @@ public class LoginModel : PageModel
 			if (result.IsLockedOut)
 				ModelState.AddModelError("Login", "You are locked out.");
 			else
-				ModelState.AddModelError("Login", "Failed to login.");
+				ModelState.AddModelError("InvalidCredentials", "Invalid username or password. Please try again.");
 
 			return Page();
 		}
@@ -113,6 +111,5 @@ public class CredentialViewModel
 
 	[Display(Name = "Remember Me?")]
 	public bool RememberMe { get; set; } = false;
-
 	public bool IsTwoFactorEnabled { get; set; } = false;
 }

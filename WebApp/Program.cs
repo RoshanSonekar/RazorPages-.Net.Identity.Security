@@ -13,7 +13,7 @@ builder.Services.AddRazorPages();
 string connectionString =  builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
 IConfiguration configEnvironmentVariables = builder.Configuration;
 
-if (builder.Configuration["Feature"] == "global")
+if (builder.Configuration["Feature"] == "Global")
 {
 	#region --- Fetch Azure SQL DB Connectionstring. For Azure Deployment use 'Environment Variables' to get configuration for AzureVault 'url' and 'secret name'---
 	string keyVaultUri = configEnvironmentVariables["KeyVaultURL"] ?? throw new InvalidOperationException("Key Vault URI not found.");
@@ -59,7 +59,7 @@ builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
 
 	client.BaseAddress = new Uri(builder.Configuration["EmailNotificationEndPoint"]); // For Local
-	if (builder.Configuration["Feature"] == "global")
+	if (builder.Configuration["Feature"] == "Global")
 		client.BaseAddress = new Uri(configEnvironmentVariables["EmailNotificationEndPoint"] ?? throw new InvalidOperationException("Email Notification Endpoint not found."));
 }).ConfigurePrimaryHttpMessageHandler(() =>
 new SocketsHttpHandler

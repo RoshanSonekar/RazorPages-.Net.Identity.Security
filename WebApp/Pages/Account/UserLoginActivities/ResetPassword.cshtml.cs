@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using WebApp.Data.Account;
 
-
 namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 {
 	public class ResetPasswordModel : PageModel
@@ -20,11 +19,11 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 
 		// Matches ?userId= from your URL
 		[BindProperty(SupportsGet = true)]
-		public string UserId { get; set; }
+		public string UserId { get; set; } = string.Empty;
 
 		// Matches ?token= from your URL
 		[BindProperty(SupportsGet = true)]
-		public string Token { get; set; }
+		public string Token { get; set; } = string.Empty;
 
 		private readonly UserManager<User> userManager;
 		private readonly IDataProtector protector;

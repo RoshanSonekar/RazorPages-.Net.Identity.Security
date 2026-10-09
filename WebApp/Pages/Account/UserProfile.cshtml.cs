@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,32 +8,39 @@ using WebApp.Data.Account;
 
 namespace WebApp.Pages.Account
 {
+  [Authorize]
   public class UserProfileModel : PageModel
   {
     private readonly UserManager<User> userManager;
 
     [BindProperty]
-    public UserProfileViewModel UserProfile { get; set; }
-
+    public UserProfileViewModel UserProfileView { get; set; }
     [BindProperty]
     public string? SuccessMessage{ get; set; }
+    [BindProperty]
+    public string Email { get; set; } = string.Empty;
 
 		public UserProfileModel(UserManager<User> _userManager)
     {
       userManager = _userManager;
-			UserProfile = new UserProfileViewModel();
+			UserProfileView = new UserProfileViewModel();
 		}
 
     public async Task<IActionResult> OnGetAsync()
     {
       SuccessMessage = string.Empty;
-			var (user, departmentClaim, designationClaim) = await GetUserInfoAsync();
-      if (user is not null)
+      // If someone navigates directly via GET, we pre-fill the email from the logged-in user context
+      if (User.Identity?.IsAuthenticated == true)
       {
-        UserProfile.Email = User.Identity?.Name ?? string.Empty;
-        UserProfile.Department = departmentClaim?.Value ?? string.Empty;
-				UserProfile.Designation = designationClaim?.Value ?? string.Empty;
-			}
+        Email = User.Identity.Name ?? string.Empty;
+        var (user, departmentClaim, designationClaim) = await GetUserInfoAsync(Email);
+
+        if (user is not null)
+        {
+          UserProfileView.Department = departmentClaim?.Value ?? string.Empty;
+          UserProfileView.Designation = designationClaim?.Value ?? string.Empty;
+        }
+      }
       return Page();
 		}
 
@@ -43,28 +51,27 @@ namespace WebApp.Pages.Account
 
       try
       {
-				var (user, departmentClaim, designationClaim) = await GetUserInfoAsync();
+				var (user, departmentClaim, designationClaim) = await GetUserInfoAsync(Email);
 				if (user is null)
 					return NotFound();
 
 				if (departmentClaim is not null)
-					await userManager.ReplaceClaimAsync(user, departmentClaim, new Claim(departmentClaim.Type, UserProfile.Department ?? string.Empty));
+					await userManager.ReplaceClaimAsync(user, departmentClaim, new Claim(departmentClaim.Type, UserProfileView.Department ?? string.Empty));
 
 				if (designationClaim is not null)
-					await userManager.ReplaceClaimAsync(user, designationClaim, new Claim(designationClaim.Type, UserProfile.Designation ?? string.Empty));
+					await userManager.ReplaceClaimAsync(user, designationClaim, new Claim(designationClaim.Type, UserProfileView.Designation ?? string.Empty));
 			}
       catch (Exception ex)
       {
-
         ModelState.AddModelError("User Profile", "An error occurred while updating the user profile.");
       }
       SuccessMessage = "User profile updated successfully.";
 			return Page();
     }
 
-    private async Task<(User? user, Claim? departmentClaim, Claim? designationClaim)> GetUserInfoAsync()
+    private async Task<(User? user, Claim? departmentClaim, Claim? designationClaim)> GetUserInfoAsync(string email)
     {
-			var user = await userManager.FindByNameAsync(User.Identity?.Name ?? string.Empty);
+			var user = await userManager.FindByEmailAsync(email);
 			if (user is not null)
 			{
 				var claims = await userManager.GetClaimsAsync(user);
@@ -85,6 +92,5 @@ namespace WebApp.Pages.Account
 
     [Required]
     public string? Designation { get; set; }
-		public string? Email { get; set; }
 	}
 }

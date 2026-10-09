@@ -10,20 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-string connectionString = string.Empty;
+string connectionString =  builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
+IConfiguration configEnvironmentVariables = builder.Configuration;
 
-#region --- Fetch Azure SQL DB Connectionstring. For Azure Deployment use 'Environment Variables' to get configuration for AzureVault 'url' and 'secret name'---
-//IConfiguration configEnvironmentVariables = builder.Configuration;
-//string keyVaultUri = configEnvironmentVariables["KeyVaultURL"] ?? throw new InvalidOperationException("Key Vault URI not found.");
-
-//var client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
-//KeyVaultSecret secret = await client.GetSecretAsync(configEnvironmentVariables["KeyVaultSecretName"] ?? throw new InvalidOperationException("Key Vault Secret Name not found."));
-//connectionString = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
-#endregion
-
-#region --- Get db connection from local ---
-connectionString = builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
-#endregion
+if (builder.Configuration["Feature"] == "global")
+{
+	#region --- Fetch Azure SQL DB Connectionstring. For Azure Deployment use 'Environment Variables' to get configuration for AzureVault 'url' and 'secret name'---
+	string keyVaultUri = configEnvironmentVariables["KeyVaultURL"] ?? throw new InvalidOperationException("Key Vault URI not found.");
+	var client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+	KeyVaultSecret secret = await client.GetSecretAsync(configEnvironmentVariables["KeyVaultSecretName"] ?? throw new InvalidOperationException("Key Vault Secret Name not found."));
+	connectionString = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
+	#endregion
+}
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -59,9 +57,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 // add api for email notification
 builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
-	//client.BaseAddress = new Uri(configEnvironmentVariables["EmailNotificationEndPoint"] ?? throw new InvalidOperationException("Email Notification Endpoint not found."));
+
 	client.BaseAddress = new Uri(builder.Configuration["EmailNotificationEndPoint"]); // For Local
-}).ConfigurePrimaryHttpMessageHandler(()=> 
+	if (builder.Configuration["Feature"] == "global")
+		client.BaseAddress = new Uri(configEnvironmentVariables["EmailNotificationEndPoint"] ?? throw new InvalidOperationException("Email Notification Endpoint not found."));
+}).ConfigurePrimaryHttpMessageHandler(() =>
 new SocketsHttpHandler
 {
 	PooledConnectionLifetime = TimeSpan.FromMinutes(2)

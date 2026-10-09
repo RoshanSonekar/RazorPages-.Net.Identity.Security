@@ -8,6 +8,10 @@
         <input type="hidden" name="Email" value="@User.Identity.Name" />
         <button type="submit" class="ml-2 btn btn-link">Change Password</button>
     </form>
+    <form method="get" class="form-check-inline" asp-page="/Account/UserProfile"> 
+        <input type="hidden" name="Email" value="@User.Identity.Name" />
+        <button type="submit" class="ml-2 btn btn-link">View Profile</button>
+    </form>
 }
 else
 {

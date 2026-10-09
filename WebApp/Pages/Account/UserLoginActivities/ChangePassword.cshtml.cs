@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using WebApp.Data.Account;
+using WebApp.Integration.Email;
 
 namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 {
@@ -17,9 +18,11 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 		public string Email { get; set; } = string.Empty;
 
 		private readonly SignInManager<User> signInManager;
-		public ChangePasswordModel(SignInManager<User> _signInManager)
+		private readonly IEmailService emailService;
+		public ChangePasswordModel(SignInManager<User> _signInManager, IEmailService _emailService)
 		{
 			signInManager = _signInManager;
+			emailService = _emailService;
 			changePasswordViewModel = new ChangePasswordViewModel();	
 		}
 
@@ -50,6 +53,9 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 				await signInManager.RefreshSignInAsync(user);
 				await signInManager.SignOutAsync(); // Sign out the user after password change
 				success = true;
+
+				// send an email to confirm the password change
+				await emailService.Send(new EmailConfirmationModelRequest() { Email = Email, Subject = "Password Changed", MessageBody = "Your password has been changed successfully. If this is not done by you then please visit the site or contact support. " });
 				return RedirectToPage("/Account/UserLoginActivities/ChangePasswordConfirmation" ,new { isSuccess = success });
 			}
 			else

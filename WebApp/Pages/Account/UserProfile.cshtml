@@ -3,36 +3,30 @@
 @{
 }
 
-<h3>User Sign-Up</h3>
+<h3>User Profile</h3>
 <div class="container border" style="padding:20px">
     <form method="post">
         <div class="text-danger" asp-validation-summary="All"></div>
-        <div class="mb-3 row">
-            <div class="col-2">
-                <label asp-for="UserProfile.Email">   </label>
-            </div>
-            <div class="col-5">
-                <input type="text" asp-for="UserProfile.Email" class="form-control" readonly />
-                <span class="text-danger" asp-validation-for="UserProfile.Email"> </span>
-            </div>
-        </div>
+        <div class="col">
+            <input type="hidden" asp-for="@Model.Email" /> 
+        </div> 
 
         <div class="mb-3 row">
             <div class="col-2">
-                <label asp-for="UserProfile.Department">   </label>
+                <label asp-for="UserProfileView.Department">   </label>
             </div>
             <div class="col-5">
-                <input type="text" asp-for="UserProfile.Department" class="form-control" />
-                <span class="text-danger" asp-validation-for="UserProfile.Department"> </span>
+                <input type="text" asp-for="UserProfileView.Department" class="form-control" />
+                <span class="text-danger" asp-validation-for="UserProfileView.Department"> </span>
             </div>
         </div>
         <div class="mb-3 row">
             <div class="col-2">
-                <label asp-for="UserProfile.Designation">   </label>
+                <label asp-for="UserProfileView.Designation">   </label>
             </div>
             <div class="col-5">
-                <input type="text" asp-for="UserProfile.Designation" class="form-control" />
-                <span class="text-danger" asp-validation-for="UserProfile.Designation"> </span>
+                <input type="text" asp-for="UserProfileView.Designation" class="form-control" />
+                <span class="text-danger" asp-validation-for="UserProfileView.Designation"> </span>
             </div>
         </div>
 

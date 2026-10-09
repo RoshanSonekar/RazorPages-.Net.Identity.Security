@@ -1,19 +1,107 @@
-﻿@if (User is not null && User.Identity is not null && User.Identity.IsAuthenticated)
+﻿@using Microsoft.AspNetCore.Identity
+@using WebApp.Data.Account
+@inject UserManager<User> UserManager
+
+@if (User is not null && User.Identity is not null && User.Identity.IsAuthenticated)
 {
-    <form method="post" class="form-check-inline" asp-page="/Account/Logout">
-        Welcome:  @User.Identity.Name (@User.Claims.First(c => c.Type == "Designation").Value)
-        <button type="submit" class="ml-2 btn btn-link">Logout</button>
-    </form>
-    <form method="get" class="form-check-inline" asp-page="/Account/UserLoginActivities/ChangePassword"> 
-        <input type="hidden" name="Email" value="@User.Identity.Name" />
-        <button type="submit" class="ml-2 btn btn-link">Change Password</button>
-    </form>
-    <form method="get" class="form-check-inline" asp-page="/Account/UserProfile"> 
-        <input type="hidden" name="Email" value="@User.Identity.Name" />
-        <button type="submit" class="ml-2 btn btn-link">View Profile</button>
-    </form>
+    // Fetch the fresh user entity record from SQL Server database to access properties
+    var currentUser = await UserManager.FindByEmailAsync(User.Identity.Name ?? string.Empty);
+    var hasProfilePicture = currentUser?.ProfilePicture != null && currentUser.ProfilePicture.Length > 0;
+
+    <div class="d-flex align-items-center gap-2">
+        <!-- NAVBAR AVATAR ICON EXTRACTION -->
+        @if (hasProfilePicture)
+        {
+            <img src="data:image/png;base64,@Convert.ToBase64String(currentUser!.ProfilePicture!)" 
+                 alt="Nav Avatar" class="rounded-circle border" style="width: 30px; height: 30px; object-fit: cover;" />
+        }
+        else
+        {
+            <div class="bg-light rounded-circle border d-inline-flex align-items-center justify-content-center text-secondary" style="width: 30px; height: 30px; font-size: 0.85rem;">
+                👤
+            </div>
+        }
+
+        <span>
+            Welcome: <strong>@User.Identity.Name</strong> (@User.Claims.First(c => c.Type == "Designation").Value)
+        </span>
+
+        <!-- Trigger Button for the Modal Pop-up -->
+        <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#profileModal">
+            View Profile
+        </button>
+
+        <form method="post" class="d-inline" asp-page="/Account/Logout">
+            <button type="submit" class="btn btn-link btn-sm text-danger">Logout</button>
+        </form>
+    </div>
+
+    <!-- Centralized Pop-up Modal Container -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content border-0 shadow-lg">
+                <!-- Modal Header with Close Button Only -->
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Profile Card Content Body -->
+                <div class="modal-body px-4">
+                    <!-- Top Avatar Image Section -->
+                    <div class="text-center mb-4">
+                        <div class="d-inline-block position-relative">
+                            @if (hasProfilePicture)
+                            {
+                                <!-- Renders the saved byte array data directly from SQL Server -->
+                                <img src="data:image/png;base64,@Convert.ToBase64String(currentUser!.ProfilePicture!)" 
+                                     alt="Profile Picture" class="rounded-circle border shadow-sm" style="width: 90px; height: 90px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <!-- Default fallback vector graphic framework -->
+                                <div class="bg-light rounded-circle border d-inline-flex align-items-center justify-content-center text-secondary" style="width: 90px; height: 90px;">
+                                    <svg width="45" height="45" viewBox="0 0 24 24" fill="indigo" xmlns="http://w3.org">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 4a4 4 0 100 8 4 4 0 000-8zm-6 4a6 6 0 1112 0A6 6 0 016 8zm12 10.5a.5.5 0 00-.5-.5h-11a.5.5 0 00-.5.5v1a2.5 2.5 0 002.5 2.5h7a2.5 2.5 0 002.5-2.5v-1zM4.5 16A2.5 2.5 0 017 13.5h10a2.5 2.5 0 012.5 2.5v2A4.5 4.5 0 0115 22.5H9A4.5 4.5 0 014.5 18v-2z" />
+                                    </svg>
+                                </div>
+                            }
+                        </div>
+                        <h5 class="mt-3 mb-1 fw-semibold text-break">@User.Identity.Name</h5>
+                        <p class="text-muted small mb-0">@User.Claims.First(c => c.Type == "Designation").Value</p>
+                    </div>
+
+                    <!-- Form Row Data Display Details -->
+                    <div class="border-top py-3 d-flex justify-content-between align-items-center">
+                        <span class="text-secondary">Username / Email:</span>
+                        <span class="fw-bold text-break text-end ms-2">@User.Identity.Name</span>
+                    </div>
+                    <div class="border-top py-3 d-flex justify-content-between align-items-center mb-4">
+                        <span class="text-secondary">Role Designation:</span>
+                        <span class="fw-bold">@User.Claims.First(c => c.Type == "Designation").Value</span>
+                    </div>
+
+                    <!-- Actions Form Base Container -->
+                    <div class="pb-3 d-grid gap-2">
+                        <!-- 1st Button: Change Password -->
+                        <form method="get" asp-page="/Account/UserLoginActivities/ChangePassword" class="w-100 m-0">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-medium rounded-3">
+                                🔑 Change Password
+                            </button>
+                        </form>
+
+                        <!-- 2nd Button: Manage Profile -->
+                        <form method="get" asp-page="/Account/UserLoginActivities/ChangePassword" class="w-100 m-0">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-medium rounded-3">
+                                ⚙️ Manage Profile
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 else
 {
-    <a class="btn btn-link" asp-page="Account/Login">Login</a>
+    <a class="btn btn-primary btn-sm" asp-page="Account/Login">Login</a>
 }

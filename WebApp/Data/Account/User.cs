@@ -6,5 +6,6 @@ namespace WebApp.Data.Account
 	{
 		public string Department { get; set; } = string.Empty;	
 		public string Designation { get; set; } = string.Empty;
+		public byte[]? ProfilePicture { get; set; }
 	}
 }

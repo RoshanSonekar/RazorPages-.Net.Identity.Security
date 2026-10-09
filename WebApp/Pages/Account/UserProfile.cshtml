@@ -5,44 +5,80 @@
 
 <h3>User Profile</h3>
 <div class="container border" style="padding:20px">
-    <form method="post">
+    <!-- Included enctype attribute to handle binary multi-part file payloads -->
+    <form method="post" enctype="multipart/form-data">
         <div class="text-danger" asp-validation-summary="All"></div>
-        <div class="col">
-            <input type="hidden" asp-for="@Model.Email" /> 
-        </div> 
+        <input type="hidden" asp-for="@Model.Email" />
+
+        <!-- Profile Picture Form Section Row -->
+        <div class="mb-4 row align-items-center">
+            <div class="col-2">
+                <label>Profile Picture</label>
+            </div>
+            <div class="col-5 d-flex align-items-center gap-3">
+                @if (Model.CurrentPictureBytes != null && Model.CurrentPictureBytes.Length > 0)
+                {
+                    <!-- Renders the raw byte array data directly from SQL Server -->
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.CurrentPictureBytes)" alt="Profile Picture" class="rounded-circle border" style="width: 85px; height: 85px; object-fit: cover;" />
+                }
+                else
+                {
+                    <!-- Default fallback avatar circle visual anchor -->
+                    <div class="bg-light rounded-circle border d-inline-flex align-items-center justify-content-center text-secondary" style="width: 85px; height: 85px; font-size: 2rem;">
+                        👤
+                    </div>
+                }
+
+                <div class="flex-grow-1">
+                    <!-- Client-side filter using standard accept values -->
+                    <input type="file" asp-for="UploadedPicture" class="form-control form-control-sm mb-1" accept=".png, .jpg, .jpeg" />
+                    <span class="text-danger small d-block" asp-validation-for="UploadedPicture"></span>
+                    <small class="text-muted d-block">Accepted Formats: PNG, JPG, JPEG (Max 2 MB).</small>
+                </div>
+            </div>
+
+            @if (Model.CurrentPictureBytes != null && Model.CurrentPictureBytes.Length > 0)
+            {
+                <div class="col-3">
+                    <!-- Targets our targeted OnPostRemovePicture handler logic -->
+                    <button type="submit" asp-page-handler="RemovePicture" class="btn btn-sm btn-outline-danger">
+                        Remove Picture
+                    </button>
+                </div>
+            }
+        </div>
 
         <div class="mb-3 row">
             <div class="col-2">
-                <label asp-for="UserProfileView.Department">   </label>
+                <label asp-for="UserProfileView.Department"></label>
             </div>
             <div class="col-5">
                 <input type="text" asp-for="UserProfileView.Department" class="form-control" />
-                <span class="text-danger" asp-validation-for="UserProfileView.Department"> </span>
+                <span class="text-danger" asp-validation-for="UserProfileView.Department"></span>
             </div>
         </div>
+
         <div class="mb-3 row">
             <div class="col-2">
-                <label asp-for="UserProfileView.Designation">   </label>
+                <label asp-for="UserProfileView.Designation"></label>
             </div>
             <div class="col-5">
                 <input type="text" asp-for="UserProfileView.Designation" class="form-control" />
-                <span class="text-danger" asp-validation-for="UserProfileView.Designation"> </span>
+                <span class="text-danger" asp-validation-for="UserProfileView.Designation"></span>
             </div>
         </div>
 
         <div class="mb-3 row">
             <div class="col-2">
-                <input type="submit" class="btn btn-primary" value="Save" />
+                <input type="submit" class="btn btn-primary" value="Save Changes" />
             </div>
-            <div class="col-5">
-            </div>
-
         </div>
     </form>
+
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success mt-3" role="alert">
             @Model.SuccessMessage
         </div>
-    } 
+    }
 </div>

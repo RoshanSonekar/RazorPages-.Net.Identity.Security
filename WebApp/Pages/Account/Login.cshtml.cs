@@ -23,6 +23,9 @@ public class LoginModel : PageModel
 
 	[BindProperty]
 	public CredentialViewModel Credential { get; set; } = new CredentialViewModel();
+	[BindProperty]
+	public string ReturnUrl { get; set; } = string.Empty;
+
 
 	public void OnGet()
 	{

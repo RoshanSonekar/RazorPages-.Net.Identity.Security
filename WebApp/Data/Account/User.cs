@@ -11,5 +11,6 @@ namespace WebApp.Data.Account
 		public string Designation { get; set; } = string.Empty;
 		public string AuthenticationType { get; set; } = "Email"; // "Email" or "AuthenticatorApp"
 		public byte[]? ProfilePicture { get; set; }
+		public string MobileNumber { get; set; } = string.Empty;
 	}
 }

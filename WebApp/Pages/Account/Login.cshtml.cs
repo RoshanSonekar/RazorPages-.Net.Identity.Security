@@ -11,20 +11,22 @@ namespace WebApp.Pages.Account;
 public class LoginModel : PageModel
 {
 	// gmail Roshan@2026
+	[BindProperty]
+	public CredentialViewModel Credential { get; set; }
+	[BindProperty]
+	public string ReturnUrl { get; set; }
 
 	private readonly SignInManager<User> signInManager;
 	private readonly IConfiguration config;
+
 	public LoginModel(SignInManager<User> _signInManager, IConfiguration _config)
 	{
 		signInManager = _signInManager;
 		config = _config;
+		Credential = new CredentialViewModel();
+		ReturnUrl = string.Empty;
 	}
 	public string TwoFAAuthenticationType { get; private set; } = "None"; // "Email" or "AuthenticatorApp"
-
-	[BindProperty]
-	public CredentialViewModel Credential { get; set; } = new CredentialViewModel();
-	[BindProperty]
-	public string ReturnUrl { get; set; } = string.Empty;
 
 	public void OnGet()
 	{

@@ -20,6 +20,8 @@ using WebApp.Integration.Email;
 //ADD LastName varchar(100) NOT NULL;
 //ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
 //ADD DateOfBirth Datetime;
+//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+//ADD MobileNumber VARCHAR(20) NULL; 
 
 var builder = WebApplication.CreateBuilder(args);
 

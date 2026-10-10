@@ -9,17 +9,13 @@
         <h3 class="m-0">User Profile</h3>
 
         <div class="d-flex align-items-center gap-3">
-            <!-- Back Arrow Navigation Action -->
             <a href="javascript:history.back()" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Go Back">
                 <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
                 </svg>
                 Back
             </a>
-
             <div class="vr text-muted" style="height: 18px;"></div>
-
-            <!-- Close Form Red Cross Button -->
             <a href="/" class="text-danger text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Close Profile">
                 <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                     <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
@@ -40,7 +36,6 @@
             </div>
             <div class="col-5">
                 <div class="d-flex align-items-center gap-3">
-                    <!-- Image Avatar Block -->
                     @if (Model.CurrentPictureBytes != null && Model.CurrentPictureBytes.Length > 0)
                     {
                         <img src="data:image/png;base64,@Convert.ToBase64String(Model.CurrentPictureBytes)" alt="Profile Picture" class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" />
@@ -50,27 +45,19 @@
                         <div class="bg-light rounded-circle border d-inline-flex align-items-center justify-content-center text-secondary shadow-sm" style="width: 80px; height: 80px; font-size: 2rem;">
                             👤
                         </div>
-                    }
+                    }        
 
-                    <!-- Combined Control Group Area -->
                     <div class="flex-grow-1">
                         <div class="input-group shadow-sm">
                             <input type="file" asp-for="UploadedPicture" class="form-control" id="customFileField" accept=".png, .jpg, .jpeg" />
-
                             @if (Model.CurrentPictureBytes != null && Model.CurrentPictureBytes.Length > 0)
                             {
-                                <button type="submit" asp-page-handler="RemovePicture" class="btn btn-outline-danger px-3 d-inline-flex align-items-center gap-1" title="Remove image file">
-                                    <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                                    </svg>
+                                <button type="submit" asp-page-handler="RemovePicture" class="btn btn-outline-danger px-3 d-inline-flex align-items-center gap-1">
                                     Remove
                                 </button>
                             }
                         </div>
                         <span class="text-danger small d-block mt-1" asp-validation-for="UploadedPicture"></span>
-                        <div class="text-muted small mt-1" style="font-size: 0.785rem;">
-                            Accepted Formats: <span class="badge bg-light text-dark border">PNG</span> <span class="badge bg-light text-dark border">JPG</span> <span class="badge bg-light text-dark border">JPEG</span> (Max 2 MB).
-                        </div>
                     </div>
                 </div>
             </div>
@@ -98,21 +85,36 @@
             </div>
         </div>
 
-        <!-- Date of Birth with Calendar constraints -->
+        <!-- Date of Birth -->
         <div class="mb-3 row">
             <div class="col-2">
                 <label asp-for="UserProfileView.DateOfBirth" class="form-label"></label>
             </div>
             <div class="col-5">
-                <input type="date"
-                       id="dobProfileInput"
-                       asp-for="UserProfileView.DateOfBirth"
-                       max="@DateTime.Today.ToString("yyyy-MM-dd")"
-                       class="form-control" />
+                <input type="date" id="dobProfileInput" asp-for="UserProfileView.DateOfBirth" max="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" />
                 <span class="text-danger" asp-validation-for="UserProfileView.DateOfBirth"></span>
                 <div id="ageProfileWarning" class="text-danger small mt-1" style="display:none;">
                     You must be at least 18 years old.
                 </div>
+            </div>
+        </div>
+
+        <!-- Mobile Number Row with South Africa Country Code Attachment -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="UserProfileView.MobileNumber" class="form-label fw-semibold"></label>
+            </div>
+            <div class="col-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-secondary fw-semibold">+27</span>
+                    <input type="tel" 
+                           id="mobileProfileInput" 
+                           asp-for="UserProfileView.MobileNumber" 
+                           class="form-control" 
+                           placeholder="712345678" 
+                           maxlength="12" />
+                </div>
+                <span class="text-danger small d-block mt-1" asp-validation-for="UserProfileView.MobileNumber" id="mobileErrorSpan"></span>
             </div>
         </div>
 
@@ -138,17 +140,15 @@
             </div>
         </div>
 
-        <!-- Save Button Line Shifting Controls to the Right Margin Boundary -->
+        <!-- Save Button Line -->
         <div class="mb-3 row">
-            <div class="col-2">
-                <!-- Kept empty to serve as a padding spacer matching the labels grid -->
+            <div class="col-2"></div>
+
+            <!-- Action elements aligned under the input fields -->
+            <div class="col-5 d-flex align-items-center gap-3">
+                <input type="submit" id="btnSubmitProfile" class="btn btn-primary px-4 shadow-sm" value="Save Changes">  
             </div>
-            <div class="col-5 d-flex justify-content-end">
-                <button type="submit" id="btnSubmitProfile" class="btn btn-primary px-4 shadow-sm">
-                    Save Changes
-                </button>
-            </div>
-        </div>
+        </div> 
     </form>
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
@@ -161,21 +161,29 @@
 
 @section Scripts {
     <script>
+        const submitBtn = document.getElementById('btnSubmitProfile');
+        let isAgeValid = true;
+        let isMobileValid = true;
+
+        function updateFormSubmitState() {
+            submitBtn.disabled = !(isAgeValid && isMobileValid);
+        }
+
+        // --- Date of Birth Client Verification Validation ---
         document.getElementById('dobProfileInput').addEventListener('change', function() {
             const dobValue = this.value;
             const warningElement = document.getElementById('ageProfileWarning');
-            const submitBtn = document.getElementById('btnSubmitProfile');
 
             if (!dobValue) {
                 this.classList.remove('is-invalid');
                 warningElement.style.display = 'none';
-                submitBtn.disabled = false;
+                isAgeValid = true;
+                updateFormSubmitState();
                 return;
             }
 
             const dob = new Date(dobValue);
             const today = new Date();
-
             let age = today.getFullYear() - dob.getFullYear();
             const monthDiff = today.getMonth() - dob.getMonth();
 
@@ -186,12 +194,42 @@
             if (age < 18) {
                 this.classList.add('is-invalid');
                 warningElement.style.display = 'block';
-                submitBtn.disabled = true;
+                isAgeValid = false;
             } else {
                 this.classList.remove('is-invalid');
                 warningElement.style.display = 'none';
-                submitBtn.disabled = false;
+                isAgeValid = true;
             }
+            updateFormSubmitState();
+        });
+
+        // --- Mobile Number Live Validation Checks ---
+        document.getElementById('mobileProfileInput').addEventListener('input', function() {
+            // Remove leading zero automatically if entered by user
+            if (this.value.startsWith('0')) {
+                this.value = this.value.substring(1);
+            }
+            
+            // Remove spaces/hyphens dynamically for calculation sanity
+            const cleanedNum = this.value.replace(/[\s-]/g, '');
+            const errorSpan = document.getElementById('mobileErrorSpan');
+            
+            // South African Mobile Format Validation Expression Check Rule
+            const saMobileRegex = /^[678]\d{8}$/;
+            if (cleanedNum === "") {
+                this.classList.remove('is-invalid');
+                errorSpan.textContent = "";
+                isMobileValid = false; // Required field rule fallback
+            } else if (!saMobileRegex.test(cleanedNum)) {
+                this.classList.add('is-invalid');
+                errorSpan.textContent = "Please enter a valid 9-digit mobile number starting with 6, 7, or 8.";
+                isMobileValid = false;
+            } else {
+                this.classList.remove('is-invalid');
+                errorSpan.textContent = "";
+                isMobileValid = true;
+            }
+            updateFormSubmitState();
         });
     </script>
 }

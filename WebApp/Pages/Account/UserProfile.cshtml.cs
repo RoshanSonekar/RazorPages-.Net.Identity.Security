@@ -12,7 +12,6 @@ namespace WebApp.Pages.Account
 	[Authorize]
 	public class UserProfileModel : PageModel
 	{
-		// Lists to hold dropdown items for the UI
 		public List<SelectListItem> DepartmentOptions { get; set; } = new List<SelectListItem>();
 		public List<SelectListItem> DesignationOptions { get; set; } = new List<SelectListItem>();
 		private readonly UserManager<User> userManager;
@@ -26,13 +25,11 @@ namespace WebApp.Pages.Account
 		[BindProperty]
 		public string Email { get; set; } = string.Empty;
 
-		// Properties for handling profile picture uploading and rendering
 		[BindProperty]
 		public IFormFile? UploadedPicture { get; set; }
 		public byte[]? CurrentPictureBytes { get; set; }
 
-		// Strict validation constraints
-		private const long MaxFileSizeBytes = 2 * 1024 * 1024; // 2 MB
+		private const long MaxFileSizeBytes = 2 * 1024 * 1024;
 		private readonly string[] PermittedExtensions = { ".png", ".jpg", ".jpeg" };
 
 		public UserProfileModel(UserManager<User> _userManager)
@@ -43,7 +40,7 @@ namespace WebApp.Pages.Account
 
 		public async Task<IActionResult> OnGetAsync()
 		{
-			SuccessMessage = string.Empty;			
+			SuccessMessage = string.Empty;
 			PopulateDropdownOptions();
 			if (User.Identity?.IsAuthenticated == true)
 			{
@@ -52,12 +49,19 @@ namespace WebApp.Pages.Account
 
 				if (user is not null)
 				{
-					// Map Core properties from User Entity to ViewModel 
 					UserProfileView.FirstName = user.FirstName;
 					UserProfileView.LastName = user.LastName;
+					UserProfileView.MobileNumber = user.MobileNumber;
 					UserProfileView.DateOfBirth = user.DateOfBirth;
 
-					// Map Claims
+					// Map Mobile Number from the identity entity (stripping +27 prefix if it exists in DB)
+					if (!string.IsNullOrEmpty(user.PhoneNumber))
+					{
+						UserProfileView.MobileNumber = user.PhoneNumber.StartsWith("+27")
+							? user.PhoneNumber.Substring(3).Trim()
+							: user.PhoneNumber;
+					}
+
 					UserProfileView.Department = departmentClaim?.Value ?? string.Empty;
 					UserProfileView.Designation = designationClaim?.Value ?? string.Empty;
 
@@ -69,7 +73,6 @@ namespace WebApp.Pages.Account
 
 		public async Task<IActionResult> OnPostAsync()
 		{
-			// 1. Run custom file validation checks
 			if (UploadedPicture is not null)
 			{
 				if (UploadedPicture.Length > MaxFileSizeBytes)
@@ -86,7 +89,6 @@ namespace WebApp.Pages.Account
 
 			if (!ModelState.IsValid)
 			{
-				// Repopulate UI dependencies on execution failures
 				PopulateDropdownOptions();
 				var rawUser = await userManager.FindByEmailAsync(Email);
 				CurrentPictureBytes = rawUser?.ProfilePicture;
@@ -99,24 +101,23 @@ namespace WebApp.Pages.Account
 				if (user is null)
 					return NotFound();
 
-				// Update baseline context variables directly on identity record
 				user.FirstName = UserProfileView.FirstName;
 				user.LastName = UserProfileView.LastName;
 				user.DateOfBirth = UserProfileView.DateOfBirth ?? DateTime.MinValue;
 
-				// Update Department Claim
+				// Append South Africa international prefix prior to database commit
+				user.PhoneNumber = $"+27{UserProfileView.MobileNumber.Trim()}";
+
 				if (departmentClaim is not null)
 					await userManager.ReplaceClaimAsync(user, departmentClaim, new Claim(departmentClaim.Type, UserProfileView.Department ?? string.Empty));
 				else
 					await userManager.AddClaimAsync(user, new Claim("Department", UserProfileView.Department ?? string.Empty));
 
-				// Update Designation Claim
 				if (designationClaim is not null)
 					await userManager.ReplaceClaimAsync(user, designationClaim, new Claim(designationClaim.Type, UserProfileView.Designation ?? string.Empty));
 				else
 					await userManager.AddClaimAsync(user, new Claim("Designation", UserProfileView.Designation ?? string.Empty));
 
-				// 2. Process and save the file if provided
 				if (UploadedPicture is not null)
 				{
 					using (var memoryStream = new MemoryStream())
@@ -126,7 +127,6 @@ namespace WebApp.Pages.Account
 					}
 				}
 
-				// Commit core properties changes to database
 				await userManager.UpdateAsync(user);
 				CurrentPictureBytes = user.ProfilePicture;
 
@@ -170,24 +170,25 @@ namespace WebApp.Pages.Account
 		private void PopulateDropdownOptions()
 		{
 			DepartmentOptions = new List<SelectListItem>
-						{
-								new SelectListItem { Value = "", Text = "-- Select Department --" },
-								new SelectListItem { Value = "HR", Text = "Human Resources" },
-								new SelectListItem { Value = "IT", Text = "Information Technology" },
-								new SelectListItem { Value = "Finance", Text = "Finance" },
-								new SelectListItem { Value = "Marketing", Text = "Marketing" }
-						};
+			{
+				new SelectListItem { Value = "", Text = "-- Select Department --" },
+				new SelectListItem { Value = "HR", Text = "Human Resources" },
+				new SelectListItem { Value = "IT", Text = "Information Technology" },
+				new SelectListItem { Value = "Finance", Text = "Finance" },
+				new SelectListItem { Value = "Marketing", Text = "Marketing" }
+			};
 
 			DesignationOptions = new List<SelectListItem>
-						{
-								new SelectListItem { Value = "", Text = "-- Select Designation --" },
-								new SelectListItem { Value = "Manager", Text = "Manager" },
-								new SelectListItem { Value = "Developer", Text = "Developer" },
-								new SelectListItem { Value = "Analyst", Text = "Analyst" },
-								new SelectListItem { Value = "Executive", Text = "Executive" }
-						};
+			{
+				new SelectListItem { Value = "", Text = "-- Select Designation --" },
+				new SelectListItem { Value = "Manager", Text = "Manager" },
+				new SelectListItem { Value = "Developer", Text = "Developer" },
+				new SelectListItem { Value = "Analyst", Text = "Analyst" },
+				new SelectListItem { Value = "Executive", Text = "Executive" }
+			};
 		}
 	}
+
 
 	public class UserProfileViewModel
 	{
@@ -199,6 +200,12 @@ namespace WebApp.Pages.Account
 		[Display(Name = "Last Name")]
 		public string LastName { get; set; } = string.Empty;
 
+		[Required(ErrorMessage = "Mobile number is required.")]
+		[Display(Name = "Mobile Number")]
+		// Validates 9 digits starting with 6, 7 or 8 (allows space/hyphen splits optionally)
+		[RegularExpression(@"^[678]\d{8}$|^[678]\d{2}[\s-]?\d{3}[\s-]?\d{4}$", ErrorMessage = "Enter a valid 9-digit South African mobile number (e.g. 712345678).")]
+		public string MobileNumber { get; set; } = string.Empty;
+		
 		[Required]
 		[DataType(DataType.Date)]
 		[MinimumAge(18, ErrorMessage = "You must be 18 years or older.")]

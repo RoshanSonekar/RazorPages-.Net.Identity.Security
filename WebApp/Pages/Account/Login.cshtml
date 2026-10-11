@@ -19,7 +19,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h2>Welcome Back</h2>
+                <h2>.Net Identiy</h2>
                 <p>Please enter your details to sign in</p>
             </div>
 
@@ -47,10 +47,11 @@
                 <div class="input-group">
                     <div class="label-wrapper">
                         <label asp-for="Credential.Password">Password</label>
-                        <a id="forgot-password" asp-page="./UserLoginActivities/ForgotPassword" class="forgot-link">Forgot password?</a>
                     </div>
                     <input asp-for="Credential.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
                     <span asp-validation-for="Credential.Password" class="text-danger"></span>
+
+                   
                 </div>
 
                 <!-- Remember Me & Checkbox -->
@@ -66,7 +67,12 @@
             </form>
 
             <div class="login-footer">
-                <p>Don't have an account? <a asp-page="/Account/Register" asp-route-returnUrl="@Model.ReturnUrl">Sign up here</a></p>
+                <p>
+                    Don't have an account?
+                    <a class="btn btn-link" href="/Account/Register">Sign-Up</a>
+                </p> 
+                <p> <a id="forgot-password" asp-page="./UserLoginActivities/ForgotPassword" class="forgot-link">Forgot password?</a>
+                </p>
             </div>
         </div>
     </div>

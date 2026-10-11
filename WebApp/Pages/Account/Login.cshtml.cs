@@ -13,8 +13,6 @@ public class LoginModel : PageModel
 	// gmail Roshan@2026
 	[BindProperty]
 	public CredentialViewModel Credential { get; set; }
-	[BindProperty]
-	public string ReturnUrl { get; set; }
 
 	private readonly SignInManager<User> signInManager;
 	private readonly IConfiguration config;
@@ -24,7 +22,6 @@ public class LoginModel : PageModel
 		signInManager = _signInManager;
 		config = _config;
 		Credential = new CredentialViewModel();
-		ReturnUrl = string.Empty;
 	}
 	public string TwoFAAuthenticationType { get; private set; } = "None"; // "Email" or "AuthenticatorApp"
 
@@ -34,8 +31,11 @@ public class LoginModel : PageModel
 
 	public async Task<IActionResult> OnPostAsync()
 	{
-		if (!ModelState.IsValid) return Page();
-
+		if (!ModelState.IsValid)
+		{
+			ModelState.AddModelError("Login", "Something went wrong. Please try again.");
+			return Page();
+		}
 			 var result = await signInManager.PasswordSignInAsync(
 				Credential.Email,
 				Credential.Password,

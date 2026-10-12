@@ -19,7 +19,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h2>.Net Identiy</h2>
+                <h2>.Net Identity</h2>
                 <p>Please enter your details to sign in</p>
             </div>
 
@@ -64,9 +64,8 @@
 
                 <!-- Submit Button -->
                 <button id="login-submit" type="submit" class="btn-submit">Sign In</button>
-            </form>
 
-            <div class="login-footer">
+                <div class="login-footer">
                 <p>
                     Don't have an account?
                     <a class="btn btn-link" href="/Account/Register">Sign-Up</a>
@@ -74,6 +73,26 @@
                 <p> <a id="forgot-password" asp-page="./UserLoginActivities/ForgotPassword" class="forgot-link">Forgot password?</a>
                 </p>
             </div>
+
+            <br/> 
+        </form> 
+        <form method="post" asp-page-handler="LoginExternally">
+    <p>
+        Social Media Login:
+        <div class="social-login-buttons">  
+        @foreach(var provider in Model.ExternalLoginProviders)
+        {
+            <button type="submit"
+                    value="@provider.Name"
+                    name="provider"
+                    class="btn btn-primary">
+                Login with @provider.DisplayName
+            </button>
+        }
+        </div>
+    </p>
+</form>
+            
         </div>
     </div>
 

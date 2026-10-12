@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,6 +14,8 @@ public class LoginModel : PageModel
 	// gmail Roshan@2026
 	[BindProperty]
 	public CredentialViewModel Credential { get; set; }
+	[BindProperty]
+	public IEnumerable<AuthenticationScheme> ExternalLoginProviders { get; set; }
 
 	private readonly SignInManager<User> signInManager;
 	private readonly IConfiguration config;
@@ -22,14 +25,30 @@ public class LoginModel : PageModel
 		signInManager = _signInManager;
 		config = _config;
 		Credential = new CredentialViewModel();
+		ExternalLoginProviders = new List<AuthenticationScheme>();
 	}
 	public string TwoFAAuthenticationType { get; private set; } = "None"; // "Email" or "AuthenticatorApp"
 
-	public void OnGet()
+	
+	public async Task OnGetAsync()
 	{
+		ExternalLoginProviders = await signInManager.GetExternalAuthenticationSchemesAsync();
 	}
 
-	public async Task<IActionResult> OnPostAsync()
+	public async Task<IActionResult> OnPostLoginExternallyAsync(string provider)
+	{
+		// 1. Tell the internal cookie middleware where to send the user AFTER Facebook responds successfully
+		// Explicitly pass the controller action name and the controller name separately
+		var redirectUrl = Url.Action("ExternalLoginCallbackNew", "Account");
+
+		// 2. Configure the properties utilizing the standardized relative redirect layout
+		var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+
+		// 3. Force ASP.NET Core to execute a true 302 Challenge using the registered provider configuration name
+		return Challenge(properties, provider);
+	}
+
+	public async Task<IActionResult> OnPostAsync()	
 	{
 		if (!ModelState.IsValid)
 		{

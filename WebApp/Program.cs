@@ -6,20 +6,16 @@ using WebApp.Data;
 using WebApp.Data.Account;
 using WebApp.Integration.Email;
 
+//Net10SecurityApp
+
 //ALTER TABLE[dbo].[AspNetUsers]
 //ADD AuthenticationType varchar(16) NOT NULL DEFAULT 'Email';
 //ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD FirstName varchar(100) NOT NULL;
+//ADD FirstName varchar(100) NULL;
 //ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD LastName varchar(100) NOT NULL;
+//ADD LastName varchar(100)  NULL;
 //ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD DateOfBirth Datetime;
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD FirstName varchar(100) NOT NULL;
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD LastName varchar(100) NOT NULL;
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD DateOfBirth Datetime;
+//ADD DateOfBirth Datetime; 
 //ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
 //ADD MobileNumber VARCHAR(20) NULL; 
 
@@ -27,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
+
 string connectionString =  builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
 IConfiguration configEnvironmentVariables = builder.Configuration;
 
@@ -70,7 +68,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 	options.SlidingExpiration = true;
 });
 
-// add api for email notification
+#region add api for email notification
 builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
 
@@ -82,8 +80,15 @@ new SocketsHttpHandler
 {
 	PooledConnectionLifetime = TimeSpan.FromMinutes(2)
 });
-builder.Services.AddTransient<IEmailService, EmailService>(); 
- 
+builder.Services.AddTransient<IEmailService, EmailService>();
+#endregion
+
+builder.Services.AddAuthentication().AddFacebook(options =>
+{
+	options.AppId = builder.Configuration["Facebook:AppId"] ?? throw new InvalidOperationException("Facebook AppId not found.");
+	options.AppSecret = builder.Configuration["Facebook:AppSecret"] ?? throw new InvalidOperationException("Facebook AppSecret not found.");
+});
+
 var app = builder.Build();
 
 #region -- minimal api for testing key vault integration --
@@ -112,11 +117,12 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 app.UseRouting();
-app.UseAuthorization();
-app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization(); 
 
 app.MapStaticAssets();
 app.MapRazorPages()
 	 .WithStaticAssets();
 
+app.MapControllers();
 app.Run();

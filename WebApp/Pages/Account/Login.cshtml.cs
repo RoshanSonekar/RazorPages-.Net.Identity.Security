@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.Protocols;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Eventing.Reader;
 using WebApp.Data.Account;
 
 namespace WebApp.Pages.Account;
@@ -17,10 +15,10 @@ public class LoginModel : PageModel
 	[BindProperty]
 	public IEnumerable<AuthenticationScheme> ExternalLoginProviders { get; set; }
 
-	private readonly SignInManager<User> signInManager;
+	private readonly SignInManager<IdentityUserExtension> signInManager;
 	private readonly IConfiguration config;
 
-	public LoginModel(SignInManager<User> _signInManager, IConfiguration _config)
+	public LoginModel(SignInManager<IdentityUserExtension> _signInManager, IConfiguration _config)
 	{
 		signInManager = _signInManager;
 		config = _config;
@@ -29,7 +27,6 @@ public class LoginModel : PageModel
 	}
 	public string TwoFAAuthenticationType { get; private set; } = "None"; // "Email" or "AuthenticatorApp"
 
-	
 	public async Task OnGetAsync()
 	{
 		ExternalLoginProviders = await signInManager.GetExternalAuthenticationSchemesAsync();

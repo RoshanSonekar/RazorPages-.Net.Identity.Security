@@ -12,10 +12,11 @@ namespace WebApp.Pages.Account
 		[BindProperty]
 		public TwoFactorLoginViewModel TwoFactorLoginViewModel { get; set; }
 
-		private readonly UserManager<User> userManager;
-		private readonly SignInManager<User> signInManager;
+		private readonly UserManager<IdentityUserExtension> userManager;
+		private readonly SignInManager<IdentityUserExtension> signInManager;
+
 		private readonly IEmailService emailService;
-		public TwoFactorLoginModel(SignInManager<User>  _signInManager, UserManager<User>  _userManager, IEmailService _emailService)
+		public TwoFactorLoginModel(SignInManager<IdentityUserExtension>  _signInManager, UserManager<IdentityUserExtension>  _userManager, IEmailService _emailService)
 		{
 			signInManager = _signInManager;
 			userManager = _userManager;

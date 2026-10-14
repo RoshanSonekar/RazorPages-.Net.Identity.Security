@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using WebApp.Data.Account
-@inject UserManager<User> UserManager
+@inject UserManager<IdentityUserExtension> UserManager
 
 @if (User is not null && User.Identity is not null && User.Identity.IsAuthenticated)
 {
@@ -23,7 +23,7 @@
         }
 
         <span>
-            Welcome: <strong>@User.Identity.Name</strong> (@User.Claims.FirstOrDefault(c => c.Type == "Designation").Value ?? string.Empty)
+            Welcome: <strong>@User.Identity.Name</strong>
         </span>
 
         <!-- Trigger Button for the Modal Pop-up -->
@@ -67,17 +67,12 @@
                             }
                         </div>
                         <h5 class="mt-3 mb-1 fw-semibold text-break">@User.Identity.Name</h5>
-                        <p class="text-muted small mb-0">@User.Claims.First(c => c.Type == "Designation").Value</p>
                     </div>
 
                     <!-- Form Row Data Display Details -->
                     <div class="border-top py-3 d-flex justify-content-between align-items-center">
                         <span class="text-secondary">Username / Email:</span>
                         <span class="fw-bold text-break text-end ms-2">@User.Identity.Name</span>
-                    </div>
-                    <div class="border-top py-3 d-flex justify-content-between align-items-center mb-4">
-                        <span class="text-secondary">Role Designation:</span>
-                        <span class="fw-bold">@User.Claims.First(c => c.Type == "Designation").Value</span>
                     </div>
 
                     <!-- Actions Form Base Container -->
@@ -90,7 +85,7 @@
                         </form>
 
                         <!-- 2nd Button: Manage Profile -->
-                        <form method="get" asp-page="/Account/UserProfile" class="w-100 m-0">
+                        <form method="get" asp-page="/Account/ManageProfile" class="w-100 m-0">
                             <button type="submit" class="btn btn-primary w-100 py-2 fw-medium rounded-3">
                                 ⚙️ Manage Profile
                             </button>

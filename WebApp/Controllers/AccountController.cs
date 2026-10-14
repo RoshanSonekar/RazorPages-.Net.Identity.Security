@@ -14,9 +14,9 @@ namespace WebAppAuthentication.Controllers
 	[AllowAnonymous]
 	public class AccountController : ControllerBase
 	{
-		private readonly SignInManager<User> signInManager;
+		private readonly SignInManager<IdentityUser> signInManager;
 
-		public AccountController(SignInManager<User> _signInManager)
+		public AccountController(SignInManager<IdentityUser> _signInManager)
 		{
 			signInManager = _signInManager;
 		}
@@ -42,7 +42,7 @@ namespace WebAppAuthentication.Controllers
 				var user = await signInManager.UserManager.FindByEmailAsync(emailClaim.Value);
 				if (user is null)
 				{
-					user = new User
+					user = new IdentityUser
 					{
 						UserName = emailClaim.Value,
 						Email = emailClaim.Value,
@@ -81,16 +81,11 @@ namespace WebAppAuthentication.Controllers
 			var user = await signInManager.UserManager.FindByEmailAsync(email);
 			if (user is null)
 			{
-				user = new User
+				user = new IdentityUser
 				{
 					UserName = email,
 					Email = email,
-					EmailConfirmed = true,
-					FirstName = "None",
-					LastName = "Node",
-					Department ="None",
-					Designation = "None",
-					DateOfBirth = DateTime.UtcNow.AddDays(-5000)
+					EmailConfirmed = true 
 				};
 
 				try

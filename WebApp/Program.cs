@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Data.Account;
 using WebApp.Integration.Email;
+using WebAppAuthentication.Integration.UserProfileAPI;
 
 //Net10SecurityApp
 
@@ -45,7 +46,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 // Add Identity
-builder.Services.AddIdentity<User, IdentityRole>(options=>
+builder.Services.AddIdentity<IdentityUserExtension, IdentityRole>(options=>
 {
 	options.Password.RequiredLength = 8;
 	options.Password.RequireUppercase = true;
@@ -68,7 +69,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 	options.SlidingExpiration = true;
 });
 
-#region add api for email notification
+#region ------------- email notification service ------------- 
 builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
 
@@ -83,11 +84,34 @@ new SocketsHttpHandler
 builder.Services.AddTransient<IEmailService, EmailService>();
 #endregion
 
+#region ------------- User profile service ------------- 
+builder.Services.AddHttpClient("UserProfileService", client =>
+{
+	client.BaseAddress = new Uri(builder.Configuration["UserProfileService"]); // For Local
+	if (builder.Configuration["Feature"] == "Global")
+		client.BaseAddress = new Uri(configEnvironmentVariables["UserProfileService"] ?? throw new InvalidOperationException("Email Notification Endpoint not found."));
+}).ConfigurePrimaryHttpMessageHandler(() =>
+new SocketsHttpHandler
+{
+	PooledConnectionLifetime = TimeSpan.FromMinutes(2)
+});
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+#endregion
+
+
+#region --- OAuth2.0 Authentication for Facebook and Google ---
 builder.Services.AddAuthentication().AddFacebook(options =>
 {
 	options.AppId = builder.Configuration["Facebook:AppId"] ?? throw new InvalidOperationException("Facebook AppId not found.");
 	options.AppSecret = builder.Configuration["Facebook:AppSecret"] ?? throw new InvalidOperationException("Facebook AppSecret not found.");
 });
+
+builder.Services.AddAuthentication().AddGoogle(options =>
+{
+	options.ClientId = builder.Configuration["Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId not found.");
+	options.ClientSecret = builder.Configuration["Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret not found.");
+});
+#endregion
 
 var app = builder.Build();
 

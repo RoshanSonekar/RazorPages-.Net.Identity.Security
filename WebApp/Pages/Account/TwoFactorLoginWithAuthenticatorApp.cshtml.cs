@@ -10,9 +10,9 @@ namespace WebApp.Pages.Account
 	{
 		[BindProperty]
 		public TwoFactorLoginMFAViewModel LoginMFAViewModel { get; set; }
-		public readonly SignInManager<User> signInManager;
+		public readonly SignInManager<UserProfile> signInManager;
 
-		public TwoFactorLoginWithAuthenticatorAppModel(SignInManager<User> _signInManager)
+		public TwoFactorLoginWithAuthenticatorAppModel(SignInManager<UserProfile> _signInManager)
 		{
 			signInManager = _signInManager;
 			LoginMFAViewModel = new TwoFactorLoginMFAViewModel();

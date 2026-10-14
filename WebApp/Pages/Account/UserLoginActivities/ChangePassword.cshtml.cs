@@ -17,9 +17,9 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 		[BindProperty]
 		public string Email { get; set; } = string.Empty;
 
-		private readonly SignInManager<User> signInManager;
+		private readonly SignInManager<IdentityUserExtension> signInManager;
 		private readonly IEmailService emailService;
-		public ChangePasswordModel(SignInManager<User> _signInManager, IEmailService _emailService)
+		public ChangePasswordModel(SignInManager<IdentityUserExtension> _signInManager, IEmailService _emailService)
 		{
 			signInManager = _signInManager;
 			emailService = _emailService;
@@ -66,7 +66,6 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 				return Page();
 			}
 		}
-
 	}
 
   public class ChangePasswordViewModel

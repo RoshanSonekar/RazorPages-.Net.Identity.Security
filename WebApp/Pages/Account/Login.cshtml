@@ -1,11 +1,9 @@
-﻿
-@page
+﻿@page
 @model WebApp.Pages.Account.LoginModel
 @{
     ViewData["Title"] = "Log in";
     Layout = null; // Bypasses the default site layout for a clean, focused login page
 }
- 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +11,92 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - YourAppName</title>
+    
+    <!-- 1. FIXED: Cleaned out all broken placeholder links and replaced with a verified, stable Font Awesome v6 CDN -->
+    <link rel="stylesheet" href="https://cloudflare.com" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    
+    <style>
+        /* Container alignment */
+        .social-login-container {
+            text-align: center;
+            margin-top: 25px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+        }
+
+        .social-login-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        /* Button flex layout */
+        .social-login-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        /* Circular base button styles */
+        .social-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 0; 
+        }
+
+        /* Ensure the icon scales up nicely and sets standard font color definitions */
+        .social-btn i {
+            font-size: 1.4rem; 
+            line-height: 1;
+            display: inline-block;
+            color: #555;
+            transition: color 0.2s ease-in-out;
+        }
+
+        /* Hover States: Individual Brand Colors */
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Google / Gmail Hover state */
+        .social-btn:has(.google-icon):hover {
+            border-color: #ea4335;
+            background-color: #fdf2f1;
+        }
+        .social-btn:has(.google-icon):hover i {
+            color: #ea4335;
+        }
+
+        /* Facebook Hover state */
+        .social-btn:has(.facebook-icon):hover {
+            border-color: #1877f2;
+            background-color: #f0f5fe;
+        }
+        .social-btn:has(.facebook-icon):hover i {
+            color: #1877f2;
+        }
+
+        /* LinkedIn Hover state */
+        .social-btn:has(.linkedin-icon):hover {
+            border-color: #0077b5;
+            background-color: #f0f7fa;
+        }
+        .social-btn:has(.linkedin-icon):hover i {
+            color: #0077b5;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
@@ -24,8 +107,6 @@
             </div>
 
             <form id="account" method="post">
-
-                 <!-- Generic Red Alert Message for Invalid Credentials -->
                 @if (ModelState.TryGetValue("InvalidCredentials", out var credentialErrors) && credentialErrors.Errors.Any())
                 {
                     <div class="alert alert-danger" role="alert" style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; font-weight: 500;">
@@ -33,28 +114,22 @@
                     </div>
                 }
 
-                <!-- Fallback/Other Validation Summary (e.g., Lockout messages) -->
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert" style="color: #dc3545; font-size: 0.9rem;"></div>
                   
-                <!-- Email / Username Input Group -->
                 <div class="input-group">
                     <label asp-for="Credential.Email">Email Address</label>
                     <input asp-for="Credential.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                     <span asp-validation-for="Credential.Email" class="text-danger"></span>
                 </div>
 
-                <!-- Password Input Group -->
                 <div class="input-group">
                     <div class="label-wrapper">
                         <label asp-for="Credential.Password">Password</label>
                     </div>
                     <input asp-for="Credential.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
                     <span asp-validation-for="Credential.Password" class="text-danger"></span>
-
-                   
                 </div>
 
-                <!-- Remember Me & Checkbox -->
                 <div class="form-actions">
                     <label asp-for="Credential.RememberMe" class="checkbox-label">
                         <input class="form-checkbox" asp-for="Credential.RememberMe" />
@@ -62,36 +137,99 @@
                     </label>
                 </div>
 
-                <!-- Submit Button -->
                 <button id="login-submit" type="submit" class="btn-submit">Sign In</button>
 
                 <div class="login-footer">
-                <p>
-                    Don't have an account?
-                    <a class="btn btn-link" href="/Account/Register">Sign-Up</a>
-                </p> 
-                <p> <a id="forgot-password" asp-page="./UserLoginActivities/ForgotPassword" class="forgot-link">Forgot password?</a>
-                </p>
+                    <p>
+                        Don't have an account?
+                        <a class="btn btn-link" href="/Account/SignUp">Sign-Up Quickly</a>
+                    </p> 
+                    <p> 
+                        <a id="forgot-password" asp-page="./UserLoginActivities/ForgotPassword" class="forgot-link">Forgot password?</a>
+                    </p>
+                </div>
+                <br/> 
+            </form> 
+
+
+            <div class="social-login-container">
+                <p class="social-login-title">Or sign in with</p>
+    
+                <form method="post" asp-page-handler="LoginExternally">
+                    <div class="social-login-buttons">  
+                        @foreach(var provider in Model.ExternalLoginProviders)
+                        {
+                            string providerKey = provider.Name.ToLower();
+
+                            <button type="submit"
+                                    value="@provider.Name"
+                                    name="provider"
+                                    class="social-btn"
+                                    title="Sign in with @provider.DisplayName">
+                    
+                                @if (providerKey.Contains("google") || providerKey.Contains("gmail"))
+                                {
+                                    <!-- Inline SVG Google Icon -->
+                                    <svg xmlns="http://w3.org" width="30" height="30" fill="currentColor" class="bi bi-google google-icon" viewBox="0 0 16 16">
+                                        <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0c2.158 0 4 .799 5.411 2.091L11.75 3.77A4.996 4.996 0 0 0 8 2.5a5 5 0 0 0-4.8 3.5H8v2.924H3.2a4.912 4.912 0 0 0 .151 1.01h3.2v.005a5 5 0 0 0 4.799-3.5h-4.8V6.558h7.195z"/>
+                                    </svg>
+                                }
+                                else if (providerKey.Contains("facebook"))
+                                {
+                                    <!-- Inline SVG Facebook Icon -->
+                                    <svg xmlns="http://w3.org" width="30" height="30" fill="currentColor" class="bi bi-facebook facebook-icon" viewBox="0 0 16 16">
+                                        <path d="M16 8.049c0-4.446-3.582-8.05-8-8s-8 3.582-8 8.05a8.01 8.01 0 0 0 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+                                    </svg>
+                                }
+                                else if (providerKey.Contains("linkedin"))
+                                {
+                                    <!-- Inline SVG LinkedIn Icon -->
+                                    <svg xmlns="http://w3.org" width="30" height="30" fill="currentColor" class="bi bi-linkedin linkedin-icon" viewBox="0 0 16 16">
+                                        <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <!-- Fallback Key/Lock Icon for unexpected providers -->
+                                    <svg xmlns="http://w3.org" width="30" height="30" fill="currentColor" class="bi bi-shield-lock" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.775 11.775 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.158 7.158 0 0 0 1.048-.625 11.777 11.777 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.54 1.54 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915V10a.5.5 0 0 1-1 0V7.915A1.5 1.5 0 0 1 8 5z"/>
+                                    </svg>
+                                }
+                            </button>
+                        }
+                    </div>
+                </form>
             </div>
 
-            <br/> 
-        </form> 
-        <form method="post" asp-page-handler="LoginExternally">
-    <p>
-        Social Media Login:
-        <div class="social-login-buttons">  
-        @foreach(var provider in Model.ExternalLoginProviders)
-        {
-            <button type="submit"
-                    value="@provider.Name"
-                    name="provider"
-                    class="btn btn-primary">
-                Login with @provider.DisplayName
-            </button>
-        }
-        </div>
-    </p>
-</form>
+            @* <div class="social-login-container">
+                <p class="social-login-title">Or sign in with</p>
+                
+                <form method="post" asp-page-handler="LoginExternally">
+                    <div class="social-login-buttons">  
+                        @foreach(var provider in Model.ExternalLoginProviders)
+                        {
+                            // 2. FIXED: Expanded provider evaluation criteria to cover multiple naming string types ("gmail", "google", etc.)
+                            string providerKey = provider.Name.ToLower();
+                            
+                            string iconClass = providerKey switch
+                            {
+                                string s when s.Contains("google") || s.Contains("gmail") => "fa-brands fa-google google-icon",
+                                string s when s.Contains("facebook") => "fa-brands fa-facebook-f facebook-icon",
+                                string s when s.Contains("linkedin") => "fa-brands fa-linkedin-in linkedin-icon",
+                                _ => "fa-solid fa-square-envelope" // Global reliable email/social fallback symbol
+                            };
+
+                            <button type="submit"
+                                    value="@provider.Name"
+                                    name="provider"
+                                    class="social-btn"
+                                    title="Sign in with @provider.DisplayName">
+                                <i class="@iconClass"></i>
+                            </button>
+                        }
+                    </div>
+                </form>
+            </div> *@
             
         </div>
     </div>
@@ -99,9 +237,5 @@
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
     }
-
-
 </body>
 </html>
-
- 

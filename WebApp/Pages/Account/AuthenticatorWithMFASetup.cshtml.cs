@@ -17,8 +17,8 @@ namespace WebApp.Pages.Account
 		[BindProperty]
 		public bool IsMFAEnabled { get; set; } = false;
 
-		private readonly UserManager<User> userManager;
-    public AuthenticatorWithMFASetupModel(UserManager<User> _userManager)
+		private readonly UserManager<IdentityUserExtension> userManager;
+    public AuthenticatorWithMFASetupModel(UserManager<IdentityUserExtension> _userManager)
     {
       userManager = _userManager;
 			IsMFAEnabled = false;

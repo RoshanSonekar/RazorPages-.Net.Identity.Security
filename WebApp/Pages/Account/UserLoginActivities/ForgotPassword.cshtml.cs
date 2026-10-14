@@ -15,10 +15,10 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 		public ForgotPasswordViewModel forgotPasswordViewModel { get; set; }
 
 		private readonly IDataProtector protector;
-		private readonly UserManager<User> userManager;
+		private readonly UserManager<IdentityUser> userManager;
 		private readonly IEmailService emailService;
 
-		public ForgotPasswordModel(UserManager<User> _userManager, IEmailService _emailService, IDataProtectionProvider _protector)
+		public ForgotPasswordModel(UserManager<IdentityUser> _userManager, IEmailService _emailService, IDataProtectionProvider _protector)
 		{
 			forgotPasswordViewModel = new ForgotPasswordViewModel();
 			userManager = _userManager;

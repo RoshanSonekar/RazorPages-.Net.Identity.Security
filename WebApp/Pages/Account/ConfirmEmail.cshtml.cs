@@ -8,9 +8,9 @@ namespace WebApp.Pages.Account
 	public class ConfirmEmailModel : PageModel
 	{
 
-		private readonly UserManager<User> userManager;
+		private readonly UserManager<UserProfile> userManager;
 		public string Message { get; set; } = string.Empty;
-		public ConfirmEmailModel(UserManager<User> _userManager)
+		public ConfirmEmailModel(UserManager<UserProfile> _userManager)
 		{
 			userManager = _userManager;
 		}

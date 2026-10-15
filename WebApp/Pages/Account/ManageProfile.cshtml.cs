@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.RazorPages; 
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text.Json;
@@ -63,7 +62,7 @@ namespace WebApp.Pages.Account
 					CurrentPictureBytes = user.ProfilePicture;
 
 					// invoke userProfileService to get custom details
-					var userDetailsResponse = await userProfileService.GetUserProfilePayload(Guid.Parse(user.Id)); 
+					var userDetailsResponse = await userProfileService.GetUserProfile(Guid.Parse(user.Id)); 
 					if (userDetailsResponse is not null)
 					{
 						string statusCode = ((JsonResult)userDetailsResponse).StatusCode.ToString()??"500";
@@ -71,13 +70,14 @@ namespace WebApp.Pages.Account
 						{
 							try
 							{
-								var result = JsonSerializer.Deserialize<UserProfile>(((JsonResult)userDetailsResponse).Value.ToString());
+								var result = JsonSerializer.Deserialize<UserProfile>(((Microsoft.AspNetCore.Mvc.JsonResult)userDetailsResponse).Value.ToString()); 
+
 								IsProfileExist = true;
 
 								UserProfileView.FirstName = result.FirstName??string.Empty;
 								UserProfileView.LastName = result.LastName ?? string.Empty;
 								UserProfileView.MobileNumber = result.MobileNumber ?? string.Empty;
-								UserProfileView.DateOfBirth = result.DateOfBirth;
+								UserProfileView.DateOfBirth = result.DateOfBirth; 
 							}
 							catch (Exception ex)
 							{
@@ -146,6 +146,11 @@ namespace WebApp.Pages.Account
 						await userManager.UpdateAsync(user);
 						CurrentPictureBytes = user.ProfilePicture;
 					}
+				}
+				else  // update flag
+				{
+					user.IsProfileExist = true;
+					await userManager.UpdateAsync(user);
 				}
 
 				SuccessMessage = $"User profile {state} successfully.";

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace WebApp.Data.Account
 {
@@ -7,8 +8,12 @@ namespace WebApp.Data.Account
 		public Guid Id { get; set; }  
 		public string FirstName { get; set; } = string.Empty;
 		public string LastName { get; set; } = string.Empty;
+
+		[JsonPropertyName("DateOfBirth")]
 		public DateTime DateOfBirth { get; set; }  
+		bool Active { get; set; }
 		public string MobileNumber { get; set; } = string.Empty;
+		//public string Payload { get; set; } = string.Empty;
 	}
 
 	public class IdentityUserExtension : IdentityUser

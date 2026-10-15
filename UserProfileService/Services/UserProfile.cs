@@ -26,6 +26,7 @@ namespace UserProfileService.Services
 					FirstName = userProfile.FirstName,
 					LastName = userProfile.LastName,
 					MobileNumber = userProfile.MobileNumber,
+					DateOfBirth = userProfile.DateOfBirth,
 					Payload = JsonSerializer.Serialize(userProfile)
 				};
 				dbcontext.Add(DtouserProfile);
@@ -43,24 +44,26 @@ namespace UserProfileService.Services
 		public async Task<bool> UpdateUserProfileAsync(UserProfileModel userProfile)
 		{
 			try
-			{
-				DtoUserProfile DtouserProfile = new()
+			{ 
+				DtoUserProfile DTO = new()
 				{
 					Id = userProfile.Id,
 					FirstName = userProfile.FirstName,
 					LastName = userProfile.LastName,
 					MobileNumber = userProfile.MobileNumber,
+					DateOfBirth = userProfile.DateOfBirth,
 					Payload = JsonSerializer.Serialize(userProfile)
 				};
-				dbcontext.Add(DtouserProfile);
+				dbcontext.Add(DTO);
 
 				int rowsAffected = await dbcontext.DtoUserProfile
 			 .Where(u => u.Id == userProfile.Id)
 			 .ExecuteUpdateAsync(setters => setters
-					 .SetProperty(u => u.FirstName, u=> string.IsNullOrWhiteSpace(userProfile.FirstName) ? u.FirstName: userProfile.FirstName)
-					 .SetProperty(u => u.LastName, u => string.IsNullOrWhiteSpace(userProfile.LastName) ? u.LastName : userProfile.LastName)  
-					 .SetProperty(u => u.MobileNumber, u => string.IsNullOrWhiteSpace(userProfile.MobileNumber) ? u.MobileNumber : userProfile.MobileNumber)
-					 .SetProperty(u => u.Payload, JsonSerializer.Serialize(userProfile))
+					 .SetProperty(u => u.FirstName, u=> string.IsNullOrWhiteSpace(DTO.FirstName) ? u.FirstName: DTO.FirstName)
+					 .SetProperty(u => u.LastName, u => string.IsNullOrWhiteSpace(DTO.LastName) ? u.LastName : DTO.LastName)
+					 .SetProperty(u => u.DateOfBirth, DTO.DateOfBirth)
+					 .SetProperty(u => u.MobileNumber, u => string.IsNullOrWhiteSpace(DTO.MobileNumber) ? u.MobileNumber : DTO.MobileNumber)
+					 .SetProperty(u => u.Payload, JsonSerializer.Serialize(DTO))
 					 ); 
 
 				return rowsAffected > 0;
@@ -73,11 +76,31 @@ namespace UserProfileService.Services
 
 		public async Task<string> GetUserProfileAsync(Guid userId)
 		{
-			var userDetails = await dbcontext.DtoUserProfile.FirstOrDefaultAsync(x => x.Id == userId);
+			//var userDetails = await dbcontext.DtoUserProfile.FirstOrDefaultAsync(x => x.Id == userId);
+			var userDetails = await dbcontext.DtoUserProfile
+			.Where(x => x.Id == userId)
+			.Select(x => new
+			{
+				x.FirstName,
+				x.LastName,
+				x.DateOfBirth,
+				x.MobileNumber,
+				x.Id 
+			})
+		.FirstOrDefaultAsync();
+
 			if (userDetails == null)
 				return string.Empty;
-			
-			return userDetails.Payload;
+
+			// Configure JSON options to match standard camelCase formatting
+			//var options = new JsonSerializerOptions
+			//{
+			//	PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+			//	WriteIndented = false
+			//};
+
+			// Converts the anonymous object into a string to match Task<string>
+			return JsonSerializer.Serialize(userDetails);
 		}
 	}
 }

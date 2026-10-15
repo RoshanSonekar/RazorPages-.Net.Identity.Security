@@ -7,6 +7,6 @@ namespace WebAppAuthentication.Integration.UserProfileAPI
 	{
 		Task<bool> UpsertUserProfileAsync(UserProfile  userProfile, bool IsProfileExist);
 
-		Task<IActionResult> GetUserProfilePayload(Guid userId);
+		Task<IActionResult> GetUserProfile(Guid userId);
 	}
 } 

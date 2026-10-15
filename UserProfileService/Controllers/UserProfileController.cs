@@ -49,7 +49,7 @@ namespace UserProfileService.Controllers
 			}
 
 			// Handle failure case (e.g., username taken, database error)
-			return BadRequest(new { success = false, message = "Failed to create user profile." });
+			return BadRequest(new { success = false, message = "Failed to update user profile. Kindly check the request and mandatory fields. Ex- Id must be exist to update the record."  });
 		}
 
 		[HttpGet("{userId:guid}")]

@@ -8,18 +8,15 @@ using WebApp.Integration.Email;
 using WebAppAuthentication.Integration.UserProfileAPI;
 
 //Net10SecurityApp
+//ALTER TABLE[dbo].[AspNetUsers]
+//DROP CONSTRAINT DF__AspNetUse__Depar__160F4887;
+//ALTER TABLE[dbo].[AspNetUsers]
+//DROP CONSTRAINT DF__AspNetUse__Desig__17036CC0;
 
 //ALTER TABLE[dbo].[AspNetUsers]
-//ADD AuthenticationType varchar(16) NOT NULL DEFAULT 'Email';
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD FirstName varchar(100) NULL;
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD LastName varchar(100)  NULL;
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD DateOfBirth Datetime; 
-//ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
-//ADD MobileNumber VARCHAR(20) NULL; 
-
+//drop column  department;
+//ALTER TABLE[dbo].[AspNetUsers]
+//drop column  designation;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,7 +25,7 @@ builder.Services.AddControllers();
 
 string connectionString =  builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
 IConfiguration configEnvironmentVariables = builder.Configuration;
-
+string AppId = string.Empty; string AppSecret = string.Empty; string ClientId = string.Empty; string ClientSecret = string.Empty;
 if (builder.Configuration["Feature"] == "Global")
 {
 	#region --- Fetch Azure SQL DB Connectionstring. For Azure Deployment use 'Environment Variables' to get configuration for AzureVault 'url' and 'secret name'---
@@ -36,6 +33,18 @@ if (builder.Configuration["Feature"] == "Global")
 	var client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
 	KeyVaultSecret secret = await client.GetSecretAsync(configEnvironmentVariables["KeyVaultSecretName"] ?? throw new InvalidOperationException("Key Vault Secret Name not found."));
 	connectionString = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
+
+	secret = await client.GetSecretAsync("FacebookAppId") ?? throw new InvalidOperationException("Key Vault Secret Name not found.");
+	AppId = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
+
+	secret = await client.GetSecretAsync("FacebookAppSecret") ?? throw new InvalidOperationException("Key Vault Secret Name not found.");
+	AppSecret = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
+
+	secret = await client.GetSecretAsync("GoogleClientId") ?? throw new InvalidOperationException("Key Vault Secret Name not found.");
+	ClientId = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
+
+	secret = await client.GetSecretAsync("GoogleClientSecret") ?? throw new InvalidOperationException("Key Vault Secret Name not found.");
+  ClientSecret = secret.Value ?? throw new InvalidOperationException("Secret value not found.");
 	#endregion
 }
 
@@ -102,14 +111,30 @@ builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 #region --- OAuth2.0 Authentication for Facebook and Google ---
 builder.Services.AddAuthentication().AddFacebook(options =>
 {
-	options.AppId = builder.Configuration["Facebook:AppId"] ?? throw new InvalidOperationException("Facebook AppId not found.");
-	options.AppSecret = builder.Configuration["Facebook:AppSecret"] ?? throw new InvalidOperationException("Facebook AppSecret not found.");
+	if (builder.Configuration["Feature"] == "Global")
+	{
+		options.AppId = AppId;
+		options.AppSecret = AppSecret;
+	}
+	else
+	{
+		options.AppId = builder.Configuration["Facebook:AppId"] ?? throw new InvalidOperationException("Facebook AppId not found.");
+		options.AppSecret = builder.Configuration["Facebook:AppSecret"] ?? throw new InvalidOperationException("Facebook AppSecret not found.");
+	}
 });
 
 builder.Services.AddAuthentication().AddGoogle(options =>
 {
-	options.ClientId = builder.Configuration["Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId not found.");
-	options.ClientSecret = builder.Configuration["Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret not found.");
+	if (builder.Configuration["Feature"] == "Global")
+	{
+		options.ClientId = ClientId;
+		options.ClientSecret = ClientSecret;
+	}
+	else
+	{
+		options.ClientId = builder.Configuration["Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId not found.");
+		options.ClientSecret = builder.Configuration["Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret not found.");
+	}
 });
 #endregion
 

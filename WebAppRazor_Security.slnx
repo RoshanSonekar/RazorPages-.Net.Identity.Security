@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/BuildingBlocks/">
+    <Project Path="BuildingBlocks/BuildingBlocks.csproj" />
+  </Folder>
+  <Project Path="DapperQueryService/DapperSqlService.csproj" Id="faa1fe4a-86d4-4aa4-a3ec-b25025fc25e8" />
   <Project Path="UserProfileService/UserProfileService.csproj" Id="ca650d10-dae7-4b60-8b23-b30b7c01abff" />
   <Project Path="WebAPI/WebAPI.csproj" Id="2693cac7-3363-48d4-9e12-9e9a9c555bae" />
   <Project Path="WebApp/WebAppAuthentication.csproj" Id="c031f4b1-6ed3-4860-9dd6-50eab4b2fcca" />

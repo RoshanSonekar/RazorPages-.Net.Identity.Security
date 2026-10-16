@@ -1,0 +1,10 @@
+﻿  CREATE TABLE UserTransactions (
+    Id UNIQUEIDENTIFIER NOT NULL,
+    ReferenceId UNIQUEIDENTIFIER NOT NULL,
+    Description NVARCHAR(500) NULL,
+    TransactionType NVARCHAR(100) NOT NULL,
+    TransactionDate DATETIME2 NOT NULL,
+    Amount DECIMAL(18, 2) NOT NULL CONSTRAINT DF_UserTransactions_Amount DEFAULT 0.00,
+    
+    CONSTRAINT PK_UserTransactions PRIMARY KEY CLUSTERED (Id)
+);

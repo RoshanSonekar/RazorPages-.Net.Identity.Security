@@ -29,9 +29,9 @@ namespace DapperQueryService.Controllers
 
 		// get flight by id
 		[HttpGet]
-		public async Task<IActionResult> GetUserTransactions(Guid id)
+		public async Task<IActionResult> GetUserTransactions(Guid referenceId)
 		{
-			var trans = await _mediatR.Send(new GetTransactionsQuery(1, 10));
+			var trans = await _mediatR.Send(new GetTransactionsQuery(referenceId, 1, 10));
 
 			if (trans is null)
 				return NotFound(new

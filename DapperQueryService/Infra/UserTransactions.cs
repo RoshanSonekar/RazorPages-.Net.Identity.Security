@@ -26,8 +26,7 @@ namespace DapperQueryService.Infra
 		{
 			const string sql = @"
 			SELECT Id, ReferenceId, Description, TransactionType, TransactionDate, Amount
-			FROM UserTransactions
-			WHERE IsActive = 1
+			FROM UserTransactions 
 			ORDER BY Id
 			OFFSET @offset ROWS
 			FETCH NEXT @pageSize  ROWS ONLY";
@@ -41,13 +40,18 @@ namespace DapperQueryService.Infra
 			const string sql = @"
 				SELECT Id, ReferenceId, Description, TransactionType, TransactionDate, Amount
 			FROM Flights
-			WHERE IsActive = 1 and Id = @Id";
+			WHERE  Id = @Id";
 
 			var userTransactionEntity = await _dbConnection.QueryFirstOrDefaultAsync<TransactionEntitySQL>(sql, new { Id = id });
 			if (userTransactionEntity is null)
 				return new TransactionEntitySQL();
 
 			return userTransactionEntity;
+		}
+
+		public Task<IEnumerable<TransactionEntitySQL>> GetTransactionsAsync(DateTime? FromDate, DateTime? ToDate)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace DapperQueryService.Controllers
 			_mediatR = mediatR;
 		}
 
-		// for Add flight
+		// for Add transaction
 		[HttpPost]
 		public async Task<IActionResult> CreateUserTransaction([FromBody] AddTranactionCommand command)
 		{
@@ -27,25 +27,9 @@ namespace DapperQueryService.Controllers
 			//return CreatedAtAction(nameof(GetUserTransactionById), new { id = result.Id }, result);
 		}
 
-		// get flight by id
-		[HttpGet]
-		public async Task<IActionResult> GetUserTransactions(Guid referenceId)
-		{
-			var trans = await _mediatR.Send(new GetTransactionsQuery(referenceId, 1, 10));
-
-			if (trans is null)
-				return NotFound(new
-				{
-					Error = "TransactionNotFound",
-					Message = $"Something went wrong. Please try again later."
-				});
-
-			return Ok(trans);
-		}
-
-		// get flight by id
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetUserTransactionById(Guid id)
+		// get trnsaction by transaction id
+		[HttpGet("{transaction_id}")]
+		public async Task<IActionResult> GetUserTransaction(Guid id)
 		{
 			var trans = await _mediatR.Send(new GetTransactionQuery(id));
 

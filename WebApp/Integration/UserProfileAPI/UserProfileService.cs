@@ -67,14 +67,6 @@ namespace WebAppAuthentication.Integration.UserProfileAPI
 				};
 			}
 
-			//string content = "{\"FirstName\":\"Roshan\",\"LastName\":\"Sonekar\",\"DateOfBirth\":\"1985-04-25T00:00:00\",\"MobileNumber\":\"611485660\",\"Id\":\"5AD92191-9C04-436C-A9C5-311D4C986573\"}";
-			//// Parse into a lightweight JSON Document structure first
-			//var jsonObject = JsonDocument.Parse(content);
-			//return new JsonResult(jsonObject)
-			//{
-			//	StatusCode = StatusCodes.Status200OK
-			//};
-
 			string content = await response.Content.ReadAsStringAsync();
 			return new JsonResult(content)
 			{

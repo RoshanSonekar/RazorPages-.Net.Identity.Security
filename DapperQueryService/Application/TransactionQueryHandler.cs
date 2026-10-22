@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.CQRS;
 using DapperQueryService.Core;
 using DapperQueryService.Infra;
+using System.Text.Json.Serialization;
 
 namespace DapperQueryService.Application;
 
@@ -20,8 +21,21 @@ public class TransactionQueryHandler(IUserTransactions transactionRepository)
 #endregion
 
 #region ---- Query to get all user's transactions with pagination ----
-public record GetTransactionsResult(IEnumerable<TransactionEntitySQL> transactionEntities);
-public record GetTransactionsQuery(Guid ReferenceId, int? PageNumber = 1, int? PageSize = 10) : IQuery<GetTransactionsResult>; // get paginations valus config or UI
+public record GetTransactionsResult
+{
+	[JsonPropertyName("transactionEntities")]
+	public IEnumerable<TransactionEntitySQL> TransactionEntities { get; init; }
+
+	[JsonPropertyName("totalCount")]
+	public int TotalCount { get; init; }
+
+	public GetTransactionsResult(IEnumerable<TransactionEntitySQL> transactionEntities, int totalCount)
+	{
+		TransactionEntities = transactionEntities;
+		TotalCount = totalCount;
+	}
+}
+public record GetTransactionsQuery(Guid ReferenceId, int? PageNumber = 1, int? PageSize = 10) : IQuery<GetTransactionsResult>;
 
 public class TransactionsQueryHandler(IUserTransactions userTranactionRepository)
 	: IQueryHandler<GetTransactionsQuery, GetTransactionsResult>
@@ -29,8 +43,16 @@ public class TransactionsQueryHandler(IUserTransactions userTranactionRepository
 	// Add cancellationToken if your repository method supports it
 	public async Task<GetTransactionsResult> Handle(GetTransactionsQuery query, CancellationToken cancellationToken)
 	{
-		var transactions = await userTranactionRepository.GetTransactionsAsync(query.PageNumber ?? 1, query.PageSize ?? 10);
-		return new GetTransactionsResult(transactions);
+		int pageNumber = query.PageNumber ?? 1;
+		int pageSize = query.PageSize ?? 10;
+
+		var (transactions, totalCount) = await userTranactionRepository.GetTransactionsAsync(
+			query.ReferenceId,
+			pageNumber,
+			pageSize
+		);
+
+		return new GetTransactionsResult(transactions, totalCount);
 	}
-}
+}	
 #endregion

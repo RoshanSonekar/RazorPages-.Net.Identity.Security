@@ -8,3 +8,36 @@
     
     CONSTRAINT PK_UserTransactions PRIMARY KEY CLUSTERED (Id)
 );
+
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('BFFF6453-077E-4D8E-9D1C-0416BFA1A990',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-17 00:00:00.0000000',	120.12);
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('46418E36-1540-4D26-8E50-075F0DC75451',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Crebit','	2026-09-21 00:00:00.0000000',	568.00);
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('C14F2B70-6E14-4D72-8AF5-1A9FCC3F0A64',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-09-10 00:00:00.0000000	',56.00)   ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('8A0DE04F-808A-445A-8140-1B8333B56351',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-14 00:00:00.0000000	',150.00)  ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('F90C57B2-EC10-4F8F-AF24-1BB72CF0A319',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-16 00:00:00.0000000',	195.12);
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('A38468C0-644C-42F0-AF9E-2B5499DBE9BC',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-12 00:00:00.0000000	',50.49)   ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('10997E1B-53B5-4C1F-85FA-2F9C815D89E3',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-09-19 00:00:00.0000000',	15.00) ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('13E36242-9630-4C2F-BA2B-36E4C94205E4',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-17 00:00:00.0000000	',120.12)  ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('3C572BE7-C180-4D25-8E0A-3E9893A0C540',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-11 00:00:00.0000000	',88.49)   ;
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('8CD8F725-C2D1-455F-810C-44D4A5D75173',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-17 00:00:00.0000000	',55.12)   ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('76537915-9A2C-45E4-8E0D-4FA29DC3CE2A',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Crebit','	2026-09-20 00:00:00.0000000',	568.00);
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('A6BA3A34-1AD0-4D0A-9D2F-615338E490D3',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-14 00:00:00.0000000	',130.00)  ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('91701299-EE88-4BE4-99FD-61E536AF115A',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-13 00:00:00.0000000',	100.00);
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('F63381E7-D2F4-448F-8407-6D3809964B2F',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-09-20 00:00:00.0000000	',67.00)   ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('DCF3DFE6-9424-4E61-8AFC-81A861FD5ABD',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-14 00:00:00.0000000',	130.00);
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('6840C1D3-B2A2-42B1-A586-85CC6A5C93C2',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-19 00:00:00.0000000',	156.00);
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('03CBEF64-0BD8-4497-8F5B-8F17DFA112E7',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-16 00:00:00.0000000',	120.12);
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('5E3CBF83-868A-4DC1-8A29-BA27A6948FDF',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Crebit','	2026-09-22 00:00:00.0000000',	78.00) ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('4E40A81C-18F9-4029-BA82-D4C147ED971B',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-18 00:00:00.0000000	',22.12)   ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('286598DC-B972-4A93-946A-DFBDA1B22F73',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-15 00:00:00.0000000',	5.25)  ;
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('AC304865-77AE-41A1-885B-E3449BCEB447',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Debit	','2026-10-18 00:00:00.0000000	',22.12)   ;
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('39013F2E-77A7-424D-876C-F73ECD3FCB95',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-19 00:00:00.0000000',	152.00);
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('8BECE8F3-C393-48EB-AD75-F9E7CB1B2F24',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-13 00:00:00.0000000',	55.49) ;
+
+insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('31EED0FA-AF8E-4AF0-B032-FA4DC33C6E08',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Credit','Credit','2026-10-10 00:00:00.00000',99.99)     ;

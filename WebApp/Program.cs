@@ -5,18 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Data.Account;
 using WebApp.Integration.Email;
+using WebAppAuthentication.Integration.DapperService;
 using WebAppAuthentication.Integration.UserProfileAPI;
 
-//Net10SecurityApp
-//ALTER TABLE[dbo].[AspNetUsers]
-//DROP CONSTRAINT DF__AspNetUse__Depar__160F4887;
-//ALTER TABLE[dbo].[AspNetUsers]
-//DROP CONSTRAINT DF__AspNetUse__Desig__17036CC0;
-
-//ALTER TABLE[dbo].[AspNetUsers]
-//drop column  department;
-//ALTER TABLE[dbo].[AspNetUsers]
-//drop column  designation;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -78,11 +69,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 	options.SlidingExpiration = true;
 });
 
+#region ------------- Integration / External Services -------------
 #region ------------- email notification service ------------- 
 builder.Services.AddHttpClient("EmailNotificationAPI", client =>
 {
-
-	client.BaseAddress = new Uri(builder.Configuration["EmailNotificationEndPoint"]); // For Local
+	client.BaseAddress = new Uri(builder.Configuration["EmailNotificationEndPoint"] ?? throw new InvalidOperationException("Email Notification Endpoint not found.")); // For Local
 	if (builder.Configuration["Feature"] == "Global")
 		client.BaseAddress = new Uri(configEnvironmentVariables["EmailNotificationEndPoint"] ?? throw new InvalidOperationException("Email Notification Endpoint not found."));
 }).ConfigurePrimaryHttpMessageHandler(() =>
@@ -96,9 +87,9 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 #region ------------- User profile service ------------- 
 builder.Services.AddHttpClient("UserProfileService", client =>
 {
-	client.BaseAddress = new Uri(builder.Configuration["UserProfileService"]); // For Local
+	client.BaseAddress = new Uri(builder.Configuration["UserProfileService"] ?? throw new InvalidOperationException("UserProfileService not found.")); // For Local
 	if (builder.Configuration["Feature"] == "Global")
-		client.BaseAddress = new Uri(configEnvironmentVariables["UserProfileService"] ?? throw new InvalidOperationException("Email Notification Endpoint not found."));
+		client.BaseAddress = new Uri(configEnvironmentVariables["UserProfileService"] ?? throw new InvalidOperationException("UserProfileService not found."));
 }).ConfigurePrimaryHttpMessageHandler(() =>
 new SocketsHttpHandler
 {
@@ -107,6 +98,20 @@ new SocketsHttpHandler
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 #endregion
 
+#region ------------- User transaction service ------------- 
+builder.Services.AddHttpClient("UserTransactionDapperService", client =>
+{
+	client.BaseAddress = new Uri(builder.Configuration["UserTransactionDapperService"] ?? throw new InvalidOperationException("UserTransactionDapperService not found.")); // For Local
+	if (builder.Configuration["Feature"] == "Global")
+		client.BaseAddress = new Uri(configEnvironmentVariables["UserTransactionDapperService"] ?? throw new InvalidOperationException("UserTransactionDapperService not found."));
+}).ConfigurePrimaryHttpMessageHandler(() =>
+new SocketsHttpHandler
+{
+	PooledConnectionLifetime = TimeSpan.FromMinutes(2)
+});
+builder.Services.AddTransient<IDapperSqlService, DapperSqlService>();
+#endregion
+#endregion
 
 #region --- OAuth2.0 Authentication for Facebook and Google ---
 builder.Services.AddAuthentication().AddFacebook(options =>

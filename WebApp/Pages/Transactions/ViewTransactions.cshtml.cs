@@ -145,6 +145,20 @@ namespace WebAppAuthentication.Pages.Transactions
 
 			return dict;
 		}
+
+		public async Task<JsonResult> OnGetTransactionDetailJsonAsync(Guid id)
+		{
+			// Executes call against your integration pipeline client 
+			var result = await dapperSqlService.GetUserTransaction(id);
+
+			if (result is JsonResult jsonResult)
+			{
+				// Extracts data body context values gracefully
+				return new JsonResult(jsonResult.Value);
+			}
+
+			return new JsonResult(new { error = "RecordNotFound" });
+		}
 	}
 
 	public class TransactionItem

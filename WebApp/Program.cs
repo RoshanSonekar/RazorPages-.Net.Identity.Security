@@ -109,7 +109,11 @@ new SocketsHttpHandler
 {
 	PooledConnectionLifetime = TimeSpan.FromMinutes(2)
 });
-builder.Services.AddTransient<IDapperSqlService, DapperSqlService>();
+builder.Services.Scan(scan => scan
+.FromAssemblyOf<DapperSqlService>()
+.AddClasses()
+.AsMatchingInterface()
+.WithTransientLifetime()); //builder.Services.AddTransient<IDapperSqlService, DapperSqlService>();
 #endregion
 #endregion
 

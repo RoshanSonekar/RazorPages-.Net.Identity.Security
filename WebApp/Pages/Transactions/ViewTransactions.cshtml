@@ -62,8 +62,10 @@
             <div class="col-md-3 d-grid">
                 <!-- Added a hidden field to default page changes when clicking Search vs Page buttons -->
                 <input type="hidden" name="IsSearchTrigger" id="IsSearchTrigger" value="false" />
-                <button type="submit" id="btnGetTransactions" class="btn btn-secondary btn-sm shadow-sm">
-                    🔍 Get Transactions
+                 <button type="submit" id="btnGetTransactions" class="btn btn-secondary btn-sm shadow-sm d-inline-flex align-items-center justify-content-center gap-2">
+                    <span id="btnIcon">🔍</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span id="btnText">Get Transactions</span>
                 </button>
             </div>
         </div>
@@ -104,16 +106,22 @@
                                         @item.Type
                                     </span>
                                 </td>
-                                <td class="text-end fw-bold text-dark">@item.Amount.ToString("C")</td>
+                                <td class="text-end fw-bold text-dark">@item.Amount.ToString("C")</td> 
                                 <td class="text-center">
-                                    <a asp-page="./TransactionDetails" asp-route-id="@item.Id" class="btn btn-outline-primary btn-xs py-1 px-2 d-inline-flex align-items-center gap-1 shadow-sm font-monospace small" style="font-size: 0.75rem;" title="View Details">
+@*                                     <!-- Changed from link to a button triggering a JavaScript fetch function --> *@
+                                    <button type="button" 
+                                            class="btn btn-outline-primary btn-xs py-1 px-2 d-inline-flex align-items-center gap-1 shadow-sm font-monospace small" 
+                                            style="font-size: 0.75rem;" 
+                                            title="View Details"
+                                            onclick="openTransactionDetails('@item.Id')">
                                         <svg xmlns="http://w3.org" width="12" height="12" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
                                             <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
                                             <path d="M0 8s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5S0 8S0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
                                         </svg>
                                         View
-                                    </a>
+                                    </button>
                                 </td>
+
                             </tr>
                         }
                     </tbody>
@@ -146,14 +154,131 @@
     </form>
 </div>
  
+<!-- Bootstrap Transaction Details Modal Layout -->
+<div class="modal fade" id="transactionDetailsModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold text-dark" id="modalTitle">🧾 Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="modalLoaderContent">
+                <!-- Loading Spinner State Indicator -->
+                <div id="modalSpinner" class="d-flex justify-content-center align-items-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                
+                <!-- Details Context Content View (Hidden Initially) -->
+                <div id="modalDataContainer" class="d-none">
+                    <div class="row g-3">
+                        <div class="col-12 border-bottom pb-2">
+                            <span class="text-uppercase text-muted fw-bold small d-block">Transaction ID</span>
+                            <span id="id" class="font-monospace text-secondary small fw-medium"></span>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-uppercase text-muted fw-bold small d-block">Execution Date</span>
+                            <span id="transactionDate" class="text-dark fw-semibold"></span>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-uppercase text-muted fw-bold small d-block">Transfer Type</span>
+                            <span id="transactionType" class="badge"></span>
+                        </div>
+                        <div class="col-12 bg-light p-3 border rounded">
+                            <span class="text-uppercase text-muted fw-bold small d-block mb-1">Reference / Description</span>
+                            <span id="description" class="text-dark fw-medium"></span>
+                        </div>
+                        <div class="col-12 text-end mt-4">
+                            <span class="text-uppercase text-muted fw-bold small d-block mb-1">Settled Amount</span>
+                            <h3 id="amount" class="m-0 fw-bold text-dark"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+
     <script> 
+        // Global function context definition
+    function openTransactionDetails(transactionId) {
+    // 1. Initialize Bootstrap Modal context instance variables 
+    var modalElement = document.getElementById('transactionDetailsModal');
+    var bootstrapModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    
+    var spinner = document.getElementById('modalSpinner');
+    var dataContainer = document.getElementById('modalDataContainer');
+    
+    // Show loading spinner states cleanly before the fetch hits the backend pipeline
+    spinner.classList.remove('d-none');
+    dataContainer.classList.add('d-none');
+    
+    // Open the popup window view container
+    bootstrapModal.show();
+
+    // 2. Fetch data from your backend handler via an AJAX endpoint layout call
+    // Note: This endpoint should route cleanly back into your PageModel handler or direct service proxy pipelines
+    fetch(`?handler=TransactionDetailJson&id=${transactionId}`)
+        .then(response => {
+            if (!response.Ok && response.status !== 200) {
+                throw new Error("Unable to parse transaction registry metadata layers.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Unpack JSON string if returned as raw internal response text block fields
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+
+            var entity = data.transactionEntity || data;
+
+            // 3. Map retrieved attributes seamlessly into HTML placeholder objects
+            document.getElementById('id').textContent = entity.id || transactionId;
+            document.getElementById('transactionDate').textContent = entity.transactionDate ? entity.transactionDate.replace('T', ' ') : 'N/A';
+            document.getElementById('description').textContent = entity.description || 'No summary specified.';
+            
+            // Format Currency display values cleanly using local currency formatting profiles
+            var amountFormatted = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(entity.amount || 0);
+            document.getElementById('amount').textContent = amountFormatted;
+
+            // Apply conditional CSS badge color code parameters depending on item type strings
+            var typeBadge = document.getElementById('transactionType');
+            typeBadge.textContent = entity.transactionType || 'Unknown';
+            typeBadge.className = "badge " + (entity.transactionType === 'Deposit' || entity.transactionType === 'Credit' 
+                ? 'bg-success-subtle text-success border border-success' 
+                : 'bg-danger-subtle text-danger border border-danger');
+
+            // Toggle layout element visibilities seamlessly
+            spinner.classList.add('d-none');
+            dataContainer.classList.remove('d-none');
+        })
+        .catch(error => {
+            console.error("Popup details initialization exception error:", error);
+            document.getElementById('id').textContent = "Failed to load transaction data details. Please close and try again later.";
+            spinner.classList.add('d-none');
+            dataContainer.classList.remove('d-none');
+        });
+}
+    </script>
+ <script> 
             // 2. Click Validation Interceptor Logic
             var btnGetTransactions = document.getElementById("btnGetTransactions");
             var startDateInput = document.getElementById("filterStartDate");
             var endDateInput = document.getElementById("filterEndDate");
             var errorAlert = document.getElementById("dateValidationError");
             var errorText = document.getElementById("validationErrorText");
+
+             // Spinner elements reference bindings
+            var btnIcon = document.getElementById("btnIcon");
+            var btnSpinner = document.getElementById("btnSpinner");
+            var btnText = document.getElementById("btnText");
 
             btnGetTransactions.addEventListener("click", function (event) {
                 // Reset validation visibility state
@@ -174,6 +299,11 @@
                         return false;
                     }
                 }
+                 // --- Trigger Waiting Spinner Activation States ---
+                btnIcon.classList.add("d-none");          // Hide magnifying glass icon
+                btnSpinner.classList.remove("d-none");    // Show spinner loader instance
+                btnText.textContent = "Loading...";       // Change active text string label
+                btnGetTransactions.classList.add("disabled"); // Prevent accidental multi-clicks
             });
         });
     </script>

@@ -1,0 +1,6 @@
+@MartenPostgreSqlService_HostAddress = http://localhost:5293
+
+GET {{MartenPostgreSqlService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

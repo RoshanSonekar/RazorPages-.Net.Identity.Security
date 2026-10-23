@@ -33,8 +33,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Application Services
 builder.Services.AddScoped<IUserProfile, UserProfile>();
 
-
-// 1. Register Health Check Services
+// Register Health Check Services
 builder.Services.AddHealthChecks()
 		.AddSqlServer(
 				connectionString: connectionString,

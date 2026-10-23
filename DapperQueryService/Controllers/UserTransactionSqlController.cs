@@ -29,15 +29,15 @@ namespace DapperQueryService.Controllers
 
 		// get trnsaction by transaction id
 		[HttpGet("{transaction_id}")]
-		public async Task<IActionResult> GetUserTransaction(Guid id)
+		public async Task<IActionResult> GetUserTransaction(Guid transaction_id)
 		{
-			var trans = await _mediatR.Send(new GetTransactionQuery(id));
+			var trans = await _mediatR.Send(new GetTransactionQuery(transaction_id));
 
 			if (trans.transactionEntity.Id == Guid.Empty)
 				return NotFound(new
 				{
 					Error = "TransactionNotFound",
-					Message = $"Transaction with id {id} was not found."
+					Message = $"Transaction with id {transaction_id} was not found."
 				});
 
 			return Ok(trans);

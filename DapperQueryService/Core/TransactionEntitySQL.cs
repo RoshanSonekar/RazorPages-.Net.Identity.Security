@@ -10,6 +10,6 @@ namespace DapperQueryService.Core
 		public string Description { get; set; } = string.Empty;
 		public string TransactionType { get; set; } = string.Empty;
 		public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
-		public double Amount { get; set; } = 0.0;
+		public decimal Amount { get; set; } = 0.0M;
 	}
 }

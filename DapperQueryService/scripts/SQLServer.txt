@@ -9,6 +9,15 @@
     CONSTRAINT PK_UserTransactions PRIMARY KEY CLUSTERED (Id)
 );
 
+  CREATE TABLE UserProfile (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    FirstName NVARCHAR(128) NOT NULL,
+    LastName NVARCHAR(128) NOT NULL,
+    DateOfBirth DATE NULL,
+    Active BIT NOT NULL DEFAULT 1,
+    MobileNumber VARCHAR(20) NULL,
+    Payload NVARCHAR(MAX) NULL
+);
 
 insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('BFFF6453-077E-4D8E-9D1C-0416BFA1A990',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Credit','	2026-10-17 00:00:00.0000000',	120.12);
 insert into [dbo].[UserTransactions] ([Id],[ReferenceId],[Description],[TransactionType],[TransactionDate],[Amount]) values('46418E36-1540-4D26-8E50-075F0DC75451',	'8b382945-9f1a-4b5e-97b0-adda32860a82',	'Test',	'Crebit','	2026-09-21 00:00:00.0000000',	568.00);

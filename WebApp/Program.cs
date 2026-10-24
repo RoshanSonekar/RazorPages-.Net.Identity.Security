@@ -7,6 +7,7 @@ using WebApp.Data.Account;
 using WebApp.Integration.Email;
 using WebAppAuthentication.Integration.DapperService;
 using WebAppAuthentication.Integration.UserProfileAPI;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 var builder = WebApplication.CreateBuilder(args);
 

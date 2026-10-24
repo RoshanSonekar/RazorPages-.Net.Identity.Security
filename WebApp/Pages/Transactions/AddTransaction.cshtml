@@ -4,10 +4,10 @@
     ViewData["Title"] = "Add Transaction";
 }
 
-<div class="container border rounded shadow-sm bg-white" style="padding:20px; margin-top:20px;">
+<div class="container border" style="padding:20px; margin-top:20px;">
     <!-- Top Action Flexbox Header Row -->
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-        <h3 class="m-0 text-dark fw-bold">📊 Add Transaction </h3>
+        <h3 class="m-0">Add Transaction</h3>
 
         <div class="d-flex align-items-center gap-3">
             <a href="javascript:history.back()" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Go Back">
@@ -28,59 +28,75 @@
 
     <!-- Unified Form Entry Container -->
     <form method="post" id="addTransactionForm">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 px-3 small shadow-sm mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <div class="row g-3">
-            @{
-                // Calculate today's date formatted as YYYY-MM-DD for the HTML max attribute
-                string maxDateToday = DateTime.Today.ToString("yyyy-MM-dd");
-            }
+        @{
+            // Calculate today's date formatted as YYYY-MM-DD for the HTML max attribute
+            string maxDateToday = DateTime.Today.ToString("yyyy-MM-dd");
+        }
 
-            <!-- Date Input -->
-            <div class="col-12">
-                <label asp-for="Input.TransactionDate" class="form-label small fw-bold text-secondary">Transaction Date</label>
-                <input type="date" asp-for="Input.TransactionDate" id="txtTransactionDate" max="@maxDateToday" class="form-control form-control-sm" />
-                <span asp-validation-for="Input.TransactionDate" class="text-danger small"></span>
+        <!-- Date Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.TransactionDate" class="form-label"></label>
             </div>
+            <div class="col-5">
+                <input type="date" asp-for="Input.TransactionDate" id="txtTransactionDate" max="@maxDateToday" class="form-control" />
+                <span asp-validation-for="Input.TransactionDate" class="text-danger"></span>
+            </div>
+        </div>
 
-            <!-- Type Input -->
-            <div class="col-12">
-                <label asp-for="Input.TransactionType" class="form-label small fw-bold text-secondary">Transaction Type</label>
-                <select asp-for="Input.TransactionType" class="form-select form-select-sm">
+        <!-- Type Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.TransactionType" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <select asp-for="Input.TransactionType" class="form-select">
                     <option value="">-- Select Type --</option>
                     <option value="Deposit">Deposit</option>
                     <option value="Withdrawal">Withdrawal</option>
                     <option value="Transfer">Transfer</option>
                 </select>
-                <span asp-validation-for="Input.TransactionType" class="text-danger small"></span>
+                <span asp-validation-for="Input.TransactionType" class="text-danger"></span>
             </div>
+        </div>
 
-            <!-- Amount Input -->
-            <div class="col-12">
-                <label asp-for="Input.Amount" class="form-label small fw-bold text-secondary">Amount (ZAR)</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light text-secondary small fw-medium">R</span>
-                    <input type="number" step="0.01" min="0.01" asp-for="Input.Amount" class="form-control form-control-sm fw-bold" placeholder="0.00" />
+        <!-- Amount Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.Amount" class="form-label fw-semibold"></label>
+            </div>
+            <div class="col-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-secondary fw-semibold">R</span>
+                    <input type="number" step="0.01" min="0.01" asp-for="Input.Amount" class="form-control" placeholder="0.00" />
                 </div>
-                <span asp-validation-for="Input.Amount" class="text-danger small"></span>
+                <span asp-validation-for="Input.Amount" class="text-danger small d-block mt-1"></span>
             </div>
+        </div>
 
-            <!-- Reference/Description Input -->
-            <div class="col-12">
-                <label asp-for="Input.Description" class="form-label small fw-bold text-secondary">Reference / Description</label>
-                <textarea asp-for="Input.Description" class="form-control form-control-sm" rows="3" placeholder="Enter transaction reference particulars..."></textarea>
-                <span asp-validation-for="Input.Description" class="text-danger small"></span>
+        <!-- Reference/Description Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.Description" class="form-label"></label>
             </div>
+            <div class="col-5">
+                <textarea asp-for="Input.Description" class="form-control" rows="3" placeholder="Enter transaction reference particulars..."></textarea>
+                <span asp-validation-for="Input.Description" class="text-danger"></span>
+            </div>
+        </div>
 
-            <!-- Action Buttons Execution Row -->
-            <div class="col-12 d-flex gap-2 justify-content-end mt-4 border-top pt-3">
-                <a asp-page="./ViewTransactions" class="btn btn-light btn-sm px-3 border">Cancel</a>
-
-                <button type="submit" id="btnSubmitTransaction" class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center justify-content-center gap-2 px-4">
+        <!-- Save Button Line -->
+        <div class="mb-3 row">
+            <div class="col-2"></div>
+            <div class="col-5 d-flex align-items-center gap-3">
+                <button type="submit" id="btnSubmitTransaction" class="btn btn-primary px-4 shadow-sm d-inline-flex align-items-center justify-content-center gap-2">
                     <span id="btnIcon">💾</span>
                     <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                     <span id="btnText">Save Transaction</span>
                 </button>
+                <a asp-page="./ViewTransactions" class="btn btn-outline-secondary px-3">Cancel</a>
             </div>
         </div>
     </form>

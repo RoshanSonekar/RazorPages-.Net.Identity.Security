@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using WebApp.Data.Account;
 using WebApp.Integration.Email;
 
 namespace WebAppAuthentication.Pages.Account
@@ -12,9 +13,9 @@ namespace WebAppAuthentication.Pages.Account
 		public SignUpViewModel signUpViewModel { get; set; } = new SignUpViewModel();
 
 		private readonly IEmailService emailService;
-		private readonly UserManager<IdentityUser> userManager;
+		private readonly UserManager<IdentityUserExtension> userManager;
 
-		public SingUpModel(UserManager<IdentityUser> _userManager, IEmailService _emailService)
+		public SingUpModel(UserManager<IdentityUserExtension> _userManager, IEmailService _emailService)
 		{
 			userManager = _userManager;
 			emailService = _emailService;
@@ -29,7 +30,7 @@ namespace WebAppAuthentication.Pages.Account
 		{
 			if (!ModelState.IsValid) return Page();
 
-			IdentityUser identityUser = new IdentityUser()
+			IdentityUserExtension identityUser = new IdentityUserExtension()
 			{
 				Email = signUpViewModel.Email,
 				UserName = signUpViewModel.Email

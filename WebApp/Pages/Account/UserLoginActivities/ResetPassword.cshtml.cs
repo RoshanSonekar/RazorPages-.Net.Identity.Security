@@ -25,10 +25,10 @@ namespace WebAppAuthentication.Pages.Account.UserLoginActivities
 		[BindProperty(SupportsGet = true)]
 		public string Token { get; set; } = string.Empty;
 
-		private readonly UserManager<UserProfile> userManager;
+		private readonly UserManager<IdentityUserExtension> userManager;
 		private readonly IDataProtector protector;
 
-		public ResetPasswordModel(UserManager<UserProfile> _userManager, IDataProtectionProvider _protector)
+		public ResetPasswordModel(UserManager<IdentityUserExtension> _userManager, IDataProtectionProvider _protector)
 		{
 			userManager = _userManager;
 			resetPasswordViewModel = new ResetPasswordViewModel();

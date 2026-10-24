@@ -21,10 +21,7 @@ namespace DapperQueryService.Controllers
 		public async Task<IActionResult> CreateUserTransaction([FromBody] AddTranactionCommand command)
 		{
 			var result = await _mediatR.Send(command);
-
 			return result.IsSuccess ? Ok(result) : BadRequest(result);
-
-			//return CreatedAtAction(nameof(GetUserTransactionById), new { id = result.Id }, result);
 		}
 
 		// get trnsaction by transaction id

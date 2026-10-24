@@ -1,4 +1,110 @@
 ﻿@page
 @model WebAppAuthentication.Pages.Transactions.AddTransactionModel
 @{
+    ViewData["Title"] = "Add Transaction";
+}
+
+<div class="container border rounded shadow-sm bg-white" style="padding:20px; margin-top:20px;">
+    <!-- Top Action Flexbox Header Row -->
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h3 class="m-0 text-dark fw-bold">📊 Add Transaction </h3>
+
+        <div class="d-flex align-items-center gap-3">
+            <a href="javascript:history.back()" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Go Back">
+                <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
+                </svg>
+                Back
+            </a>
+            <div class="vr text-muted" style="height: 18px;"></div>
+            <a href="/" class="text-danger text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Close Profile">
+                <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                </svg>
+                Close
+            </a>
+        </div>
+    </div>
+
+    <!-- Unified Form Entry Container -->
+    <form method="post" id="addTransactionForm">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 px-3 small shadow-sm mb-3"></div>
+
+        <div class="row g-3">
+            @{
+                // Calculate today's date formatted as YYYY-MM-DD for the HTML max attribute
+                string maxDateToday = DateTime.Today.ToString("yyyy-MM-dd");
+            }
+
+            <!-- Date Input -->
+            <div class="col-12">
+                <label asp-for="Input.TransactionDate" class="form-label small fw-bold text-secondary">Transaction Date</label>
+                <input type="date" asp-for="Input.TransactionDate" id="txtTransactionDate" max="@maxDateToday" class="form-control form-control-sm" />
+                <span asp-validation-for="Input.TransactionDate" class="text-danger small"></span>
+            </div>
+
+            <!-- Type Input -->
+            <div class="col-12">
+                <label asp-for="Input.TransactionType" class="form-label small fw-bold text-secondary">Transaction Type</label>
+                <select asp-for="Input.TransactionType" class="form-select form-select-sm">
+                    <option value="">-- Select Type --</option>
+                    <option value="Deposit">Deposit</option>
+                    <option value="Withdrawal">Withdrawal</option>
+                    <option value="Transfer">Transfer</option>
+                </select>
+                <span asp-validation-for="Input.TransactionType" class="text-danger small"></span>
+            </div>
+
+            <!-- Amount Input -->
+            <div class="col-12">
+                <label asp-for="Input.Amount" class="form-label small fw-bold text-secondary">Amount (ZAR)</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light text-secondary small fw-medium">R</span>
+                    <input type="number" step="0.01" min="0.01" asp-for="Input.Amount" class="form-control form-control-sm fw-bold" placeholder="0.00" />
+                </div>
+                <span asp-validation-for="Input.Amount" class="text-danger small"></span>
+            </div>
+
+            <!-- Reference/Description Input -->
+            <div class="col-12">
+                <label asp-for="Input.Description" class="form-label small fw-bold text-secondary">Reference / Description</label>
+                <textarea asp-for="Input.Description" class="form-control form-control-sm" rows="3" placeholder="Enter transaction reference particulars..."></textarea>
+                <span asp-validation-for="Input.Description" class="text-danger small"></span>
+            </div>
+
+            <!-- Action Buttons Execution Row -->
+            <div class="col-12 d-flex gap-2 justify-content-end mt-4 border-top pt-3">
+                <a asp-page="./ViewTransactions" class="btn btn-light btn-sm px-3 border">Cancel</a>
+
+                <button type="submit" id="btnSubmitTransaction" class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center justify-content-center gap-2 px-4">
+                    <span id="btnIcon">💾</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span id="btnText">Save Transaction</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <!-- Partial framework assets logic for validating ruleset attributes natively inside browser pipeline views -->
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById("addTransactionForm").addEventListener("submit", function(event) {
+            // Check if jQuery validation plugin detects client errors before spinning loaders
+            if ($(this).valid()) {
+                var btnSubmit = document.getElementById("btnSubmitTransaction");
+                var btnIcon = document.getElementById("btnIcon");
+                var btnSpinner = document.getElementById("btnSpinner");
+                var btnText = document.getElementById("btnText");
+
+                // Trigger UI Waiting Spinner State matching the list filters button pattern
+                btnIcon.classList.add("d-none");
+                btnSpinner.classList.remove("d-none");
+                btnText.textContent = "Saving...";
+                btnSubmit.classList.add("disabled");
+            }
+        });
+    </script>
 }

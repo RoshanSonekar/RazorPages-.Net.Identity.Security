@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using DapperQueryService.Application;
+using System.Net;
 
 namespace DapperQueryService.Controllers
 {
@@ -16,12 +17,28 @@ namespace DapperQueryService.Controllers
 			_mediatR = mediatR;
 		}
 
-		// for Add transaction
+		// to add user transaction
 		[HttpPost]
 		public async Task<IActionResult> CreateUserTransaction([FromBody] AddTranactionCommand command)
 		{
-			var result = await _mediatR.Send(command);
-			return result.IsSuccess ? Ok(result) : BadRequest(result);
+			try
+			{
+				var result = await _mediatR.Send(command);
+				return StatusCode(StatusCodes.Status201Created, result.Id);
+			}
+			catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+					when (ex.InnerException?.Message.Contains("duplicate") == true)
+			{
+				return Conflict(new { message = "A transaction with this ReferenceId already exists." });
+			}
+			catch (System.ComponentModel.DataAnnotations.ValidationException ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected server error occurred." });
+			}
 		}
 
 		// get trnsaction by transaction id

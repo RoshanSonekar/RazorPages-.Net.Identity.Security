@@ -17,11 +17,9 @@ public class EmailService : IEmailService
 		{
 			return;
 		}
-
 		var client = httpClientFactory.CreateClient("EmailNotificationAPI");
 		var response = await client.PostAsJsonAsync("SendAccountConfirmationEmail", emailConfirmationModelRequest);
-
-		// This throws an exception if the HTTP status code indicates failure (e.g., 404, 500)
+		
 		response.EnsureSuccessStatusCode();
 	}
 }

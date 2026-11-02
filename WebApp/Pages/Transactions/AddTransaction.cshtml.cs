@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using WebApp.Data.Account;
+using WebAppAuthentication.Data.Entities;
 using WebAppAuthentication.Integration.DapperService;
 
 namespace WebAppAuthentication.Pages.Transactions
 {
 	[Authorize]
 	public class AddTransactionModel : PageModel
-	{
+	{ 
 		private readonly UserManager<IdentityUserExtension> userManager;
 		private readonly IDapperSqlService dapperSqlService;
 		public AddTransactionModel(UserManager<IdentityUserExtension> _userManager, IDapperSqlService _dapperSqlService)
@@ -44,23 +45,51 @@ namespace WebAppAuthentication.Pages.Transactions
 			}
 
 			if (!ModelState.IsValid)
-			{
 				return Page();
-			}
 
 			try
 			{
-				// NOTE: Map values cleanly to match your database layer signatures.
-				// Assuming an insert pattern matching your fetch scheme:
-				// await _dapperSqlService.InsertTransaction(UserReferenceId, Input.TransactionDate, Input.TransactionType, Input.Amount, Input.Description);
+				UserTransactionEntity userTransactionEntity = new UserTransactionEntity
+				{
+					Id = Guid.NewGuid(),
+					ReferenceId = UserReferenceId,
+					Description = Input.Description,
+					TransactionType = Input.TransactionType,
+					TransactionDate = Input.TransactionDate,
+					Amount = Input.Amount
+				};
 
-				TempData["SuccessMessage"] = "Transaction has been created successfully!";
-				return RedirectToPage("./ViewTransactions");
+				IActionResult result = await dapperSqlService.CreateUserTransaction(userTransactionEntity);
+
+				if (result is ObjectResult objectResult)
+				{
+					// If it's a 201 Created status, the transaction was successful!
+					if (objectResult.StatusCode == StatusCodes.Status201Created)
+					{
+						return new ObjectResult(new
+						{
+							message = "Transaction has been created successfully!",
+							data = userTransactionEntity
+						})
+						{ StatusCode = StatusCodes.Status201Created }; 
+					}
+
+					string errorMessage = objectResult.Value?.ToString() ?? "An unexpected transaction error occurred.";
+					int status = objectResult.StatusCode ?? StatusCodes.Status500InternalServerError;
+
+					if (status == StatusCodes.Status409Conflict)
+						errorMessage = "Duplicate detected: This transaction reference already exists.";
+
+					return new ObjectResult(new { message = errorMessage }) { StatusCode = status };
+				}
+
+				return new ObjectResult(new { message = "Received an unmanageable response structure from the backend engine." })
+				{ StatusCode = StatusCodes.Status502BadGateway };
 			}
 			catch (Exception ex)
 			{
-				ModelState.AddModelError(string.Empty, $"An error occurred while saving: {ex.Message}");
-				return Page();
+				return new ObjectResult(new { message = $"An error occurred while saving: {ex.Message}" })
+				{ StatusCode = StatusCodes.Status500InternalServerError };
 			}
 		}
 	}

@@ -8,5 +8,6 @@ namespace WebAppAuthentication.Integration.DapperService
 		Task<List<UserTransactionEntity>> GetUserTransactions(Guid ReferenceId, int? PageNumber = 1, int? PageSize = 10);
 		Task<IActionResult> GetUserTransaction(Guid TransactionId);
 		Task<PagedApiResponse> GetUserTransactionsWithMetadata(Guid ReferenceId, int? PageNumber = 1, int? PageSize = 10);
+		Task<IActionResult> CreateUserTransaction(UserTransactionEntity transaction);
 	}
 }

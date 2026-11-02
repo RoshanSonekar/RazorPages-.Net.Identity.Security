@@ -26,6 +26,20 @@
         </div>
     </div>
 
+    <div class="modal fade" id="csharpSuccessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-body text-center py-4">
+                    <span class="fs-1">🎉</span>
+                    <h4 class="mt-2 fw-bold text-success">Success!</h4>
+                    <!-- Outputs the custom text mapped from the ObjectResult value -->
+                    <p class="text-muted small mt-2">@TempData["PopUpMessage"]</p>
+                    <button type="button" class="btn btn-success btn-sm px-4 mt-2" data-bs-dismiss="modal">Excellent</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Unified Form Entry Container -->
     <form method="post" id="addTransactionForm">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>

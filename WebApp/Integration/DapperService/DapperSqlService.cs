@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Net;
 using System.Text.Json.Serialization;
 using WebAppAuthentication.Data.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace WebAppAuthentication.Integration.DapperService
 {
@@ -24,6 +25,39 @@ namespace WebAppAuthentication.Integration.DapperService
 		{
 			httpClientFactory = _httpClientFactory;
 			logger = _logger;
+		}
+
+
+		public async Task<IActionResult> CreateUserTransaction(UserTransactionEntity transaction)
+		{
+			string baseUri = $"UserTransactionSql";
+			var client = httpClientFactory.CreateClient("UserTransactionDapperService");
+			using HttpResponseMessage response = await client.PostAsJsonAsync(baseUri, transaction);
+			try
+			{
+				if (response.IsSuccessStatusCode)
+				{
+					return new ObjectResult(new { message = "Transaction created successfully." })
+					{
+						StatusCode = StatusCodes.Status201Created
+					};
+				}
+
+				var errorContent = await response.Content.ReadAsStringAsync();
+				return response.StatusCode switch
+				{
+					HttpStatusCode.BadRequest => new ObjectResult(errorContent) { StatusCode = StatusCodes.Status400BadRequest },
+					HttpStatusCode.Conflict => new ObjectResult(errorContent) { StatusCode = StatusCodes.Status409Conflict },
+					_ => new ObjectResult(errorContent) { StatusCode = (int)response.StatusCode }
+				};
+			}
+			catch (HttpRequestException ex)
+			{
+				return new ObjectResult(new { message = "The downstream service is currently unreachable." })
+				{
+					StatusCode = StatusCodes.Status503ServiceUnavailable
+				};
+			}
 		}
 
 		public async Task<PagedApiResponse> GetUserTransactionsWithMetadata(Guid TransactionId, int? pageNumber = 1, int? pageSize = 5)
@@ -100,5 +134,6 @@ namespace WebAppAuthentication.Integration.DapperService
 			return new JsonResult(content) { StatusCode = StatusCodes.Status200OK };
 		}
 
+		
 	}
 }

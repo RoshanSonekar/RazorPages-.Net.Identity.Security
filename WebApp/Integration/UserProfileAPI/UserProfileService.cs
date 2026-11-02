@@ -27,12 +27,12 @@ namespace WebAppAuthentication.Integration.UserProfileAPI
 			var client = httpClientFactory.CreateClient("UserProfileService");
 			if (!IsProfileExist)
 			{
-				var response = await client.PostAsJsonAsync("UserProfile", userProfile);
+				using HttpResponseMessage response = await client.PostAsJsonAsync("UserProfile", userProfile);
 				response.EnsureSuccessStatusCode();
 			}
 			else
 			{
-				var response = await client.PutAsJsonAsync("UserProfile", userProfile);
+				using HttpResponseMessage response = await client.PutAsJsonAsync("UserProfile", userProfile);
 				response.EnsureSuccessStatusCode();
 			}
 			return IsProfileExist;

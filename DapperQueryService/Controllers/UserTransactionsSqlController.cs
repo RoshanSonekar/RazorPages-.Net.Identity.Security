@@ -36,5 +36,27 @@ namespace DapperSqlService.Controllers
 				totalCount = result.TotalCount
 			}); 
 		}
+
+		// get transactions by ref/user id
+		[HttpGet("{referenceId}/{StartDate}/{EndDate}")]
+		public async Task<IActionResult> GetUserTransactionsByDate(Guid referenceId, DateTime StartDate, DateTime EndDate, [FromQuery] int? PageNumber = 1, [FromQuery] int? PageSize = 10, CancellationToken cancellationToken = default)
+		{
+			var result = await _mediatR.Send(new GetTransactionsFilterQuery(referenceId, StartDate, EndDate,PageNumber, PageSize), cancellationToken);
+
+			if (result is null || result.TransactionEntities is null)
+			{
+				return NotFound(new
+				{
+					Error = "TransactionsNotFound",
+					Message = "Something went wrong. Please try again later."
+				});
+			}
+
+			return Ok(new
+			{
+				transactionEntities = result.TransactionEntities,
+				totalCount = result.TotalCount
+			});
+		}
 	}
 }

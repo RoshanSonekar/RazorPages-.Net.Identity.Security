@@ -54,5 +54,31 @@ public class TransactionsQueryHandler(IUserTransactions userTranactionRepository
 
 		return new GetTransactionsResult(transactions, totalCount);
 	}
-}	
+}
+#endregion
+
+
+#region ---- Query to get all user's transactions with pagination and other filters ----
+public record GetTransactionsFilterQuery(Guid ReferenceId, DateTime? StartDate = null, DateTime? EndDate = null, int? PageNumber = 1, int? PageSize = 10) : IQuery<GetTransactionsResult>;
+
+public class TransactionsFilterQueryHandler(IUserTransactions userTranactionRepository)
+	: IQueryHandler<GetTransactionsFilterQuery, GetTransactionsResult>
+{
+	// Add cancellationToken if your repository method supports it
+	public async Task<GetTransactionsResult> Handle(GetTransactionsFilterQuery query, CancellationToken cancellationToken)
+	{
+		int pageNumber = query.PageNumber ?? 1;
+		int pageSize = query.PageSize ?? 10;
+
+		var (transactions, totalCount) = await userTranactionRepository.GetTransactionsByFilterAsync(
+			query.ReferenceId,
+			query.StartDate,
+			query.EndDate,
+			pageNumber,
+			pageSize
+		);
+
+		return new GetTransactionsResult(transactions, totalCount);
+	}
+}
 #endregion

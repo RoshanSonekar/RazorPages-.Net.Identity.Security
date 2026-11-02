@@ -94,7 +94,6 @@ namespace WebAppAuthentication.Pages.Transactions
 			return Page();
 		}
 		 
-
 		private async Task FetchPaginatedTransactions()
 		{
 			var stopwatch = Stopwatch.StartNew();
@@ -157,7 +156,7 @@ namespace WebAppAuthentication.Pages.Transactions
 				return new JsonResult(jsonResult.Value);
 			}
 
-			return new JsonResult(new { error = "RecordNotFound" });
+			return new JsonResult(new { error = "Technical error, please try later." });
 		}
 	}
 

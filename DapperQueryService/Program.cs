@@ -41,6 +41,7 @@ builder.Services.AddValidatorsFromAssembly(assembly);
 // Explicitly register the transaction handlers from the Application project (MongoDB)
 builder.Services.AddTransient<MediatR.IRequestHandler<DapperQueryService.Application.AddTranactionCommand, DapperQueryService.Application.AddTransactionResult>, DapperQueryService.Application.TransactionCommandHandler>();
 builder.Services.AddTransient<MediatR.IRequestHandler<DapperQueryService.Application.GetTransactionsQuery, DapperQueryService.Application.GetTransactionsResult>, DapperQueryService.Application.TransactionsQueryHandler>();
+builder.Services.AddTransient<MediatR.IRequestHandler<DapperQueryService.Application.GetTransactionsFilterQuery, DapperQueryService.Application.GetTransactionsResult>, DapperQueryService.Application.TransactionsFilterQueryHandler>();
 builder.Services.AddTransient<MediatR.IRequestHandler<DapperQueryService.Application.GetTransactionQuery, DapperQueryService.Application.GetTransactionResult>, DapperQueryService.Application.TransactionQueryHandler>();
 
 // Application Services

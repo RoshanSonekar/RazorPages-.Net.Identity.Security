@@ -5,6 +5,33 @@
 }
 
 <div class="container border" style="padding:20px; margin-top:20px;">
+
+    <!-- Popup Alert Modal Component -->
+    <div class="modal fade" id="statusMessageModal" tabindex="-1" aria-labelledby="statusMessageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                @{
+                    var isSuccess = TempData["PopupType"]?.ToString() == "success";
+                    var headerClass = isSuccess ? "bg-success text-white" : "bg-danger text-white";
+                    var titleText = isSuccess ? "🎉 Success" : "⚠️ Error Encountered";
+                    var textClass = isSuccess ? "text-success" : "text-danger";
+                    var btnClass = isSuccess ? "btn-success" : "btn-danger";
+                }
+                <div class="modal-header @headerClass">
+                    <h5 class="modal-title" id="statusMessageModalLabel">@titleText</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <h5 class="@textClass mb-0">@TempData["PopupMessage"]</h5>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <button type="button" class="btn @btnClass px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Top Action Flexbox Header Row -->
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
         <h3 class="m-0">Add Transaction</h3>
@@ -23,20 +50,6 @@
                 </svg>
                 Close
             </a>
-        </div>
-    </div>
-
-    <div class="modal fade" id="csharpSuccessModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg border-0">
-                <div class="modal-body text-center py-4">
-                    <span class="fs-1">🎉</span>
-                    <h4 class="mt-2 fw-bold text-success">Success!</h4>
-                    <!-- Outputs the custom text mapped from the ObjectResult value -->
-                    <p class="text-muted small mt-2">@TempData["PopUpMessage"]</p>
-                    <button type="button" class="btn btn-success btn-sm px-4 mt-2" data-bs-dismiss="modal">Excellent</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -136,5 +149,16 @@
                 btnSubmit.classList.add("disabled");
             }
         });
+
+        // Automatically display the Bootstrap popup if the server side sent structural TempData
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (TempData["PopupMessage"] != null)
+                {
+                    <text>
+                            var targetModal = new bootstrap.Modal(document.getElementById('statusMessageModal'));
+                            targetModal.show();
+                    </text>
+            }
+                });
     </script>
 }

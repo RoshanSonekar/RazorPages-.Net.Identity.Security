@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Drawing.Printing;
 using System.Net;
 using System.Text.Json.Serialization;
 using WebAppAuthentication.Data.Entities;
-using Microsoft.AspNetCore.Http;
 
 namespace WebAppAuthentication.Integration.DapperService
 {
@@ -60,38 +60,17 @@ namespace WebAppAuthentication.Integration.DapperService
 			}
 		}
 
-		public async Task<PagedApiResponse> GetUserTransactionsWithMetadata(Guid TransactionId, int? pageNumber = 1, int? pageSize = 5)
+		public async Task<PagedApiResponse> GetUserTransactionsByFilters(Guid ReferenceId, DateTime StartDate, DateTime EndDate, int? PageNumber = 1, int? PageSize = 10)
 		{
-			string baseUri = $"UserTransactionsSql/{TransactionId}";
+			string formattedStartDate = StartDate.ToString("yyyy-MM-dd");
+			string formattedEndDate = EndDate.ToString("yyyy-MM-dd");
 
-			var queryParams = new Dictionary<string, string?>
-			{
-				{ "PageNumber", pageNumber.ToString() },
-				{ "PageSize", pageSize.ToString() }
-			};
-
-			string requestUri = QueryHelpers.AddQueryString(baseUri, queryParams);
-
-			var client = httpClientFactory.CreateClient("UserTransactionDapperService");
-			using HttpResponseMessage response = await client.GetAsync(requestUri);
-
-			if (response.IsSuccessStatusCode)
-			{
-				var result = await response.Content.ReadFromJsonAsync<PagedApiResponse>();
-				return result ?? new PagedApiResponse();
-			}
-
-			return new PagedApiResponse();
-		}
-
-		public async Task<List<UserTransactionEntity>> GetUserTransactions(Guid TransactionId, int? pageNumber = 1, int? pageSize = 5)
-		{
-			string baseUri = $"UserTransactionsSql/{TransactionId}";
+			string baseUri = $"UserTransactionsSql/{ReferenceId}/{formattedStartDate}/{formattedEndDate}";
 
 			var queryParams = new Dictionary<string, string?>
 				{
-						{ "PageNumber", pageNumber?.ToString() ?? "1" },
-						{ "PageSize", pageSize?.ToString() ?? "5" }
+						{ "PageNumber", PageNumber?.ToString() ?? "1" },
+						{ "PageSize", PageSize?.ToString() ?? "5" }
 				};
 
 			string requestUri = QueryHelpers.AddQueryString(baseUri, queryParams);
@@ -101,12 +80,13 @@ namespace WebAppAuthentication.Integration.DapperService
 
 			if (response.IsSuccessStatusCode)
 			{
-				var result = await response.Content.ReadFromJsonAsync<PagedApiResponse>();
-				return result?.Transactions ?? [];
+				var result = await response.Content.ReadFromJsonAsync<PagedApiResponse>();	
+				return result ?? new PagedApiResponse();
 			}
 
-			return [];
-		}
+			return new PagedApiResponse();
+		} 
+ 
 
 		public async Task<IActionResult> GetUserTransaction(Guid TransactionId)
 		{

@@ -33,7 +33,7 @@ namespace DapperQueryService.Infra
 			SELECT Id, ReferenceId, Description, TransactionType, TransactionDate, Amount
 			FROM UserTransactions 
 			WHERE ReferenceId = @ReferenceId
-			ORDER BY Id
+			ORDER BY TransactionDate DESC
 			OFFSET @Offset ROWS
 			FETCH NEXT @PageSize ROWS ONLY;";
 

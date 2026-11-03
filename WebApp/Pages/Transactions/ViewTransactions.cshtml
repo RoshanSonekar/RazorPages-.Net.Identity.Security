@@ -41,14 +41,18 @@
                     <span id="validationErrorText">End Date cannot be less than Start Date.</span>
                 </div>
             </div>
+
             <div class="col-md-3">
                 <label asp-for="StartDate" class="form-label small fw-bold text-secondary">Start Date</label>
                 <input type="date" asp-for="StartDate" id="filterStartDate" max="@maxDateToday" class="form-control form-control-sm" />
+                <span asp-validation-for="StartDate" class="text-danger small"></span>
             </div>
             <div class="col-md-3">
                 <label asp-for="EndDate" class="form-label small fw-bold text-secondary">End Date</label>
                 <input type="date" asp-for="EndDate" id="filterEndDate" max="@maxDateToday" class="form-control form-control-sm" />
+                <span asp-validation-for="EndDate" class="text-danger small"></span>
             </div>
+ 
              
             <div class="col-md-3">
                 <label asp-for="TransactionType" class="form-label small fw-bold text-secondary">Type</label>
@@ -284,21 +288,28 @@
                 // Reset validation visibility state
                 errorAlert.classList.add("d-none");
 
-                var startVal = startDateInput.value;
-                var endVal = endDateInput.value;
+               var startVal = startDateInput.value;
+            var endVal = endDateInput.value;
 
-                if (startVal && endVal) {
-                    var startDate = new Date(startVal);
-                    var endDate = new Date(endVal);
+            // 1. Mandatory Presence Check
+            if (!startVal || !endVal) {
+                event.preventDefault();
+                errorText.textContent = "Validation Error: Both Start Date and End Date are mandatory fields.";
+                errorAlert.classList.remove("d-none");
+                return false;
+            }
 
-                    // Check if End Date is before Start Date
-                    if (endDate < startDate) {
-                        event.preventDefault(); // Stop form post submission to server
-                        errorText.textContent = "Validation Error: End Date cannot be earlier than the chosen Start Date.";
-                        errorAlert.classList.remove("d-none"); // Show Bootstrap alert panel
-                        return false;
-                    }
-                }
+            // 2. Chronological Order Check
+            var startDate = new Date(startVal);
+            var endDate = new Date(endVal);
+
+            if (endDate < startDate) {
+                event.preventDefault(); 
+                errorText.textContent = "Validation Error: End Date cannot be earlier than the chosen Start Date.";
+                errorAlert.classList.remove("d-none"); 
+                return false;
+            }
+
                  // --- Trigger Waiting Spinner Activation States ---
                 btnIcon.classList.add("d-none");          // Hide magnifying glass icon
                 btnSpinner.classList.remove("d-none");    // Show spinner loader instance

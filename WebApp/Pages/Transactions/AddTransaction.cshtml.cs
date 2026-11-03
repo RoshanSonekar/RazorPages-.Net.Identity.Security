@@ -11,7 +11,7 @@ namespace WebAppAuthentication.Pages.Transactions
 {
 	[Authorize]
 	public class AddTransactionModel : PageModel
-	{ 
+	{
 		private readonly UserManager<IdentityUserExtension> userManager;
 		private readonly IDapperSqlService dapperSqlService;
 		public AddTransactionModel(UserManager<IdentityUserExtension> _userManager, IDapperSqlService _dapperSqlService)
@@ -27,7 +27,6 @@ namespace WebAppAuthentication.Pages.Transactions
 
 		public void OnGet()
 		{
-			// Sets default date to today for user convenience
 			Input.TransactionDate = DateTime.Today;
 		}
 
@@ -63,33 +62,37 @@ namespace WebAppAuthentication.Pages.Transactions
 
 				if (result is ObjectResult objectResult)
 				{
-					// If it's a 201 Created status, the transaction was successful!
-					if (objectResult.StatusCode == StatusCodes.Status201Created)
-					{
-						return new ObjectResult(new
-						{
-							message = "Transaction has been created successfully!",
-							data = userTransactionEntity
-						})
-						{ StatusCode = StatusCodes.Status201Created }; 
-					}
-
-					string errorMessage = objectResult.Value?.ToString() ?? "An unexpected transaction error occurred.";
 					int status = objectResult.StatusCode ?? StatusCodes.Status500InternalServerError;
 
+					if (status == StatusCodes.Status201Created)
+					{
+						// Set success indicators for the front-end popup
+						TempData["PopupType"] = "success";
+						TempData["PopupMessage"] = "Transaction has been created successfully!";
+
+						// Clear the form for the next entry by redirecting back to the clean GET path
+						return RedirectToPage();
+					}
+
+					// Map and handle API errors gracefully via standard Alert components
+					string errorMessage = objectResult.Value?.ToString() ?? "An unexpected transaction error occurred.";
 					if (status == StatusCodes.Status409Conflict)
 						errorMessage = "Duplicate detected: This transaction reference already exists.";
 
-					return new ObjectResult(new { message = errorMessage }) { StatusCode = status };
+					TempData["PopupType"] = "error";
+					TempData["PopupMessage"] = errorMessage;
+					return Page();
 				}
 
-				return new ObjectResult(new { message = "Received an unmanageable response structure from the backend engine." })
-				{ StatusCode = StatusCodes.Status502BadGateway };
+				TempData["PopupType"] = "error";
+				TempData["PopupMessage"] = "Received an unmanageable response structure from the backend engine.";
+				return Page();
 			}
 			catch (Exception ex)
 			{
-				return new ObjectResult(new { message = $"An error occurred while saving: {ex.Message}" })
-				{ StatusCode = StatusCodes.Status500InternalServerError };
+				TempData["PopupType"] = "error";
+				TempData["PopupMessage"] = $"An error occurred while saving: {ex.Message}";
+				return Page();
 			}
 		}
 	}

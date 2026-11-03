@@ -57,7 +57,6 @@ public class TransactionsQueryHandler(IUserTransactions userTranactionRepository
 }
 #endregion
 
-
 #region ---- Query to get all user's transactions with pagination and other filters ----
 public record GetTransactionsFilterQuery(Guid ReferenceId, DateTime? StartDate = null, DateTime? EndDate = null, int? PageNumber = 1, int? PageSize = 10) : IQuery<GetTransactionsResult>;
 

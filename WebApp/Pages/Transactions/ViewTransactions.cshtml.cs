@@ -27,9 +27,13 @@ namespace WebAppAuthentication.Pages.Transactions
 		public Guid UserReferenceId { get; set; }
 
 		[BindProperty(SupportsGet = true)]
+		[Required(ErrorMessage = "Start Date is required to view transactions.")]
+		[DataType(DataType.Date)]
 		public DateTime? StartDate { get; set; }
 
 		[BindProperty(SupportsGet = true)]
+		[Required(ErrorMessage = "End Date is required to view transactions.")]
+		[DataType(DataType.Date)]
 		public DateTime? EndDate { get; set; }
 
 		[BindProperty(SupportsGet = true)]
@@ -82,6 +86,9 @@ namespace WebAppAuthentication.Pages.Transactions
 			if (string.IsNullOrWhiteSpace(UserReferenceId.ToString()))
 				ModelState.AddModelError("ViewTransactions", "User details are not found, please logout and theb login again to view this page.");
 
+			if (!ModelState.IsValid)
+				return Page();
+
 			var stopwatch = Stopwatch.StartNew();
 			// Reset back to page 1 ONLY if the primary search filter button was pressed.
 			if (IsSearchTrigger)
@@ -99,36 +106,44 @@ namespace WebAppAuthentication.Pages.Transactions
 			var stopwatch = Stopwatch.StartNew();
 
 			if (CurrentPage < 1) CurrentPage = 1;
-
+			PagedApiResponse apiResult;
 			// Pass down active dynamic pagination tracking variables directly to SQL endpoint layers
-			var apiResult = await dapperSqlService.GetUserTransactionsWithMetadata(UserReferenceId, CurrentPage, PageSize);
-
-			var transactionItems = new List<TransactionItem>();
-			foreach (var transaction in apiResult.Transactions)
+			if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
 			{
-				transactionItems.Add(new TransactionItem
-				{
-					Id = transaction.Id.ToString(),
-					Timestamp = transaction.TransactionDate,
-					Reference = transaction.Description,
-					Type = transaction.TransactionType,
-					Amount = (decimal)transaction.Amount
-				});
+				ModelState.AddModelError("ViewTransactions", "Start date cannot be greater than end date.");
+				return;
 			}
+			//else if (StartDate.HasValue && EndDate.HasValue && StartDate < EndDate)
+			{
+				apiResult = await dapperSqlService.GetUserTransactionsByFilters(UserReferenceId, StartDate.HasValue ? StartDate.Value : DateTime.MinValue, EndDate.HasValue ? EndDate.Value : DateTime.MaxValue, CurrentPage, PageSize);
+	 
+				var transactionItems = new List<TransactionItem>();
+				foreach (var transaction in apiResult.Transactions)
+				{
+					transactionItems.Add(new TransactionItem
+					{
+						Id = transaction.Id.ToString(),
+						Timestamp = transaction.TransactionDate,
+						Reference = transaction.Description,
+						Type = transaction.TransactionType,
+						Amount = (decimal)transaction.Amount
+					});
+				}
 
-			// Apply in-memory client processing filters if needed
-			if (StartDate.HasValue) transactionItems = transactionItems.Where(t => t.Timestamp >= StartDate.Value).ToList();
-			if (EndDate.HasValue) transactionItems = transactionItems.Where(t => t.Timestamp <= EndDate.Value.AddDays(1)).ToList();
-			if (!string.IsNullOrEmpty(TransactionType)) transactionItems = transactionItems.Where(t => t.Type == TransactionType).ToList();
+				// Apply in-memory client processing filters if needed
+				if (StartDate.HasValue) transactionItems = transactionItems.Where(t => t.Timestamp >= StartDate.Value).ToList();
+				if (EndDate.HasValue) transactionItems = transactionItems.Where(t => t.Timestamp <= EndDate.Value.AddDays(1)).ToList();
+				if (!string.IsNullOrEmpty(TransactionType)) transactionItems = transactionItems.Where(t => t.Type == TransactionType).ToList();
 
-			Transactions = transactionItems;
+				Transactions = transactionItems;
 
-			// If backend doesn't support aggregate count properties, use virtual length matching layout behaviors safely
-			int totalItems = apiResult.TotalCount > 0 ? apiResult.TotalCount : 100; // Simulated ceiling or assign totalItems = apiResult.Transactions.Count if unpaginated stream
-			TotalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
+				// If backend doesn't support aggregate count properties, use virtual length matching layout behaviors safely
+				int totalItems = apiResult.TotalCount > 0 ? apiResult.TotalCount : 100; // Simulated ceiling or assign totalItems = apiResult.Transactions.Count if unpaginated stream
+				TotalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
 
-			stopwatch.Stop();
-			ExecutionTimeMs = stopwatch.ElapsedMilliseconds;
+				stopwatch.Stop();
+				ExecutionTimeMs = stopwatch.ElapsedMilliseconds;
+			}
 		}
 
 		public Dictionary<string, string> GetRouteData(int targetPage)
@@ -147,14 +162,10 @@ namespace WebAppAuthentication.Pages.Transactions
 
 		public async Task<JsonResult> OnGetTransactionDetailJsonAsync(Guid id)
 		{
-			// Executes call against your integration pipeline client 
 			var result = await dapperSqlService.GetUserTransaction(id);
 
 			if (result is JsonResult jsonResult)
-			{
-				// Extracts data body context values gracefully
 				return new JsonResult(jsonResult.Value);
-			}
 
 			return new JsonResult(new { error = "Technical error, please try later." });
 		}

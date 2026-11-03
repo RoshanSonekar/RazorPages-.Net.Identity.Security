@@ -6,7 +6,17 @@
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
         <h3 class="m-0 text-dark fw-bold">📊 View Transactions </h3>
 
+        
+
         <div class="d-flex align-items-center gap-3">
+            <!-- New Add Transaction Action Link Button Button -->
+            <a asp-page="./AddTransaction" class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center gap-1 fw-semibold px-3" title="Create New Record Entry">
+                <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
+                </svg>
+                Add Transaction
+            </a>
+
             <a href="javascript:history.back()" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Go Back">
                 <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
@@ -25,7 +35,7 @@
 
     <!-- Unified Filters & Action Form -->
     <form method="post" class="mb-4">
-        <div class="text-danger" asp-validation-summary="All"></div>
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
          
         <!-- TRANSACTION FILTERS ROW -->
         <div class="row g-3 align-items-end mb-4 bg-light p-3 rounded border">

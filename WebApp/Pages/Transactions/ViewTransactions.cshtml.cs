@@ -18,6 +18,8 @@ namespace WebAppAuthentication.Pages.Transactions
 		{
 			userManager = _userManager;
 			dapperSqlService = _dapperSqlService;
+			StartDate = DateTime.UtcNow;
+			EndDate = DateTime.UtcNow;
 		}
 
 		[BindProperty]
@@ -53,6 +55,9 @@ namespace WebAppAuthentication.Pages.Transactions
 
 		public async Task<IActionResult> OnGetAsync()
 		{
+			StartDate = DateTime.Today;
+			EndDate = DateTime.Today;
+
 			UserReferenceId = Guid.Empty;
 
 			if (User.Identity?.IsAuthenticated == true)

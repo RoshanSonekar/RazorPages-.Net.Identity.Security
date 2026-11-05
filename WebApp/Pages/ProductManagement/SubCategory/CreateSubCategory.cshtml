@@ -1,0 +1,168 @@
+﻿@page
+@model WebAppAuthentication.Pages.ProductManagement.SubCategory.CreateSubCategoryModel
+@{
+    ViewData["Title"] = "Add Sub-Category";
+}
+
+<div class="container border" style="padding:20px; margin-top:20px;">
+
+    <!-- Popup Alert Modal Component -->
+    <div class="modal fade" id="statusMessageModal" tabindex="-1" aria-labelledby="statusMessageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                @{
+                    var isSuccess = TempData["PopupType"]?.ToString() == "success";
+                    var headerClass = isSuccess ? "bg-success text-white" : "bg-danger text-white";
+                    var titleText = isSuccess ? "🎉 Success" : "⚠️ Error Encountered";
+                    var textClass = isSuccess ? "text-success" : "text-danger";
+                    var btnClass = isSuccess ? "btn-success" : "btn-danger";
+                }
+                <div class="modal-header @headerClass">
+                    <h5 class="modal-title" id="statusMessageModalLabel">@titleText</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <h5 class="@textClass mb-0">@TempData["PopupMessage"]</h5>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <button type="button" class="btn @btnClass px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Top Action Flexbox Header Row -->
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h3 class="m-0">Add Sub Category</h3>
+
+        <div class="d-flex align-items-center gap-3">
+            <a href="javascript:history.back()" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Go Back">
+                <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
+                </svg>
+                Back
+            </a>
+            <div class="vr text-muted" style="height: 18px;"></div>
+            <a href="/" class="text-danger text-decoration-none d-inline-flex align-items-center gap-1 small fw-semibold" title="Close Profile">
+                <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                </svg>
+                Close
+            </a>
+        </div>
+    </div>
+
+    <!-- Unified Form Entry Container -->
+    <form method="post" id="addTransactionForm">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <!-- Type Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.CategoryName" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <select asp-for="Input.CategoryName" class="form-select">
+                    <option value="">-- Select Type --</option>
+                    <option value="Deposit">Deposit</option>
+                    <option value="Withdrawal">Withdrawal</option>
+                    <option value="Transfer">Transfer</option>
+                </select>
+                <span asp-validation-for="Input.CategoryName" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Reference/Description Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.SubCategoryName" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input asp-for="Input.SubCategoryName" class="form-control" placeholder="Enter subcategory name..." />
+                <span asp-validation-for="Input.SubCategoryName" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Reference/Description Input -->
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.SubCategoryDescription" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <textarea asp-for="Input.SubCategoryDescription" class="form-control" rows="3" placeholder="Enter category description..."></textarea>
+                <span asp-validation-for="Input.SubCategoryDescription" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-2">
+                <label asp-for="Input.DisplayOrder" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input asp-for="Input.DisplayOrder" class="form-control" type="number" min="1" placeholder="Enter display order..." />
+                <span asp-validation-for="Input.DisplayOrder" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-2"></div>
+            <div class="col-5">
+                <div class="form-check">
+                    <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" id="isActiveCheckbox" />
+                    <label class="form-check-label fw-semibold" for="isActiveCheckbox">
+                        Active
+                    </label>
+                </div>
+                <span asp-validation-for="Input.IsActive" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Save Button Line -->
+        <div class="mb-3 row">
+            <div class="col-2"></div>
+            <div class="col-5 d-flex align-items-center gap-3">
+                <button type="submit" id="btnCreateSubCategory" class="btn btn-primary px-4 shadow-sm d-inline-flex align-items-center justify-content-center gap-2">
+                    <span id="btnIcon">💾</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span id="btnText">Create SubCategory</span>
+                </button>
+                <a asp-page="./ViewTransactions" class="btn btn-outline-secondary px-3">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <!-- Partial framework assets logic for validating ruleset attributes natively inside browser pipeline views -->
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById("addTransactionForm").addEventListener("submit", function(event) {
+            // Check if jQuery validation plugin detects client errors before spinning loaders
+            if ($(this).valid()) {
+                var btnSubmit = document.getElementById("btnCreateSubCategory");
+                var btnIcon = document.getElementById("btnIcon");
+                var btnSpinner = document.getElementById("btnSpinner");
+                var btnText = document.getElementById("btnText");
+
+                // Trigger UI Waiting Spinner State matching the list filters button pattern
+                btnIcon.classList.add("d-none");
+                btnSpinner.classList.remove("d-none");
+                btnText.textContent = "Saving...";
+                btnSubmit.classList.add("disabled");
+            }
+        });
+
+        // Automatically display the Bootstrap popup if the server side sent structural TempData
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (TempData["PopupMessage"] != null)
+                {
+                    <text>
+                            var targetModal = new bootstrap.Modal(document.getElementById('statusMessageModal'));
+                            targetModal.show();
+                    </text>
+            }
+                                });
+    </script>
+}

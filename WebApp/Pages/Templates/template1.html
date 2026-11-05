@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog Operations Hub</title>
+    <link rel="stylesheet" href="style.css">
+	
+	<style>
+	
+:root {
+    --bg-main: #f8fafc;
+    --bg-sidebar: #ffffff;
+    --text-color: #1e293b;
+    --text-muted: #64748b;
+    --primary-color: #6366f1;
+    --primary-light: #e0e7ff;
+    --border-color: #e2e8f0;
+    
+    /* Treemap Colors matching the dashboard */
+    --purple-dark: #cbd5e1;
+    --purple-med: #b4b6f9;
+    --purple-bright: #818cf8;
+    --box-grey: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-color);
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+}
+
+/* SIDEBAR STYLING */
+.sidebar {
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    padding: 24px 16px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.logo-icon {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-group {
+    margin-bottom: 24px;
+}
+
+.nav-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 8px;
+    padding-left: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.nav-item.active {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.badge {
+    background-color: #f1f5f9;
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.badge.blue {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+/* MAIN CONTENT CONTAINER */
+.main-content {
+    padding: 32px;
+    overflow-y: auto;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.title-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.status-indicator {
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.btn-download {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* FILTER TIMELINE */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.filter-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.filter-btn.active {
+    background: #0f172a;
+    color: white;
+    border-color: #0f172a;
+}
+
+/* METRICS ROW */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.metric-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.metric-card h3 {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.metric-card .value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.trend {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.trend.positive { color: #16a34a; }
+.trend.negative { color: #dc2626; }
+.trend.warning { color: #ea580c; }
+
+/* LAYOUT FOR GRAPHS / ALERTS SPLIT */
+.content-split {
+    display: grid;
+    grid-template-columns: 1.6fr 1.1fr;
+    gap: 24px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.panel-header {
+    margin-bottom: 16px;
+}
+
+.panel-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.flex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge-pill.red {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* TREEMAP ELEMENT GRID CSS */
+.treemap-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-rows: 140px 140px;
+    gap: 12px;
+    grid-template-areas: 
+        "electronics home fashion"
+        "books beauty sports";
+}
+
+.tree-box {
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.tree-box h4 { font-size: 14px; }
+.tree-box p { font-size: 12px; color: var(--text-muted); }
+.tree-box .percentage { font-size: 18px; font-weight: 700; margin-top: auto; }
+
+/* Colors specific to the dashboard matrix visualization state */
+.purple-dark { background-color: #cbd5e1; }
+.grey-light { background-color: #f1f5f9; }
+.purple-medium { background-color: #c7d2fe; }
+.grey-lightest { background-color: #f8fafc; }
+.grey-medium { background-color: #f1f5f9; }
+.purple-bright { background-color: #818cf8; color: white; }
+
+/* ALERTS SYSTEM STYLING */
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.alert-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.type-critical { border-left: 4px solid #ef4444; }
+.type-warning { border-left: 4px solid #f59e0b; }
+
+.alert-icon { font-size: 16px; }
+.alert-body strong { display: block; font-size: 13px; font-weight: 600; }
+.alert-body small { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: block; }
+.alert-body a { color: var(--primary-color); text-decoration: none; }
+	</style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">N</div>
+                <div>
+                    <h2>Norra</h2>
+                    <small>Admin Panel</small>
+                </div>
+            </div>
+
+            <nav class="nav-group">
+                <span class="nav-title">GENERAL</span>
+                <a href="#" class="nav-item"><span>📋</span> Overview</a>
+                <a href="#" class="nav-item active"><span>⚙️</span> Operations Hub</a>
+                <a href="#" class="nav-item"><span>📦</span> Orders <span class="badge">18</span></a>
+            </nav>
+
+            <nav class="nav-group">
+                <span class="nav-title">CATALOG</span>
+                <a href="#" class="nav-item"><span>💎</span> Products</a>
+                <a href="#" class="nav-item"><span>📁</span> Categories</a>
+                <a href="#" class="nav-item"><span>📈</span> Category Health <span class="badge blue">4</span></a>
+                <a href="#" class="nav-item"><span>🌿</span> Menu & Structure</a>
+                <a href="#" class="nav-item"><span>📣</span> Campaigns</a>
+            </nav>
+
+            <nav class="nav-group">
+                <span class="nav-title">STORE</span>
+                <a href="#" class="nav-item"><span>🔌</span> Integrations</a>
+                <a href="#" class="nav-item"><span>👥</span> Customers</a>
+                <a href="#" class="nav-item"><span>⚙️</span> Settings</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN HUB CONTENT -->
+        <main class="main-content">
+            
+            <!-- HEADER SECTION -->
+            <header class="main-header">
+                <div>
+                    <span class="breadcrumb">General / Operations hub</span>
+                    <div class="title-area">
+                        <h1>Catalog Operations Hub</h1>
+                        <span class="status-indicator">Live • 30 sec ago</span>
+                    </div>
+                </div>
+                <button class="btn-download">📥 Download Report</button>
+            </header>
+
+            <!-- FILTERS -->
+            <div class="filter-bar">
+                <button class="filter-btn">Today</button>
+                <button class="filter-btn active">7 Days</button>
+                <button class="filter-btn">30 Days</button>
+                <button class="filter-btn icon-btn">🔍 Filter</button>
+            </div>
+
+            <!-- METRIC CARDS GRID -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Active Products</h3>
+                    <div class="value">12,486</div>
+                    <span class="trend positive">▲ 312 this week</span>
+                </div>
+                <div class="metric-card">
+                    <h3>Not Live</h3>
+                    <div class="value">1,204</div>
+                    <span class="trend positive">▲ 86 this week</span>
+                </div>
+                <div class="metric-card">
+                    <h3>Avg. Completeness</h3>
+                    <div class="value">92%</div>
+                    <span class="trend positive">▲ 3 pts</span>
+                </div>
+                <div class="metric-card">
+                    <h3>Out-of-Stock SKUs</h3>
+                    <div class="value">214</div>
+                    <span class="trend negative">▲ 41 this week</span>
+                </div>
+                <div class="metric-card">
+                    <h3>Pricing Errors</h3>
+                    <div class="value">17</div>
+                    <span class="trend warning">Below cost</span>
+                </div>
+                <div class="metric-card">
+                    <h3>Pending Bulk Jobs</h3>
+                    <div class="value">3</div>
+                    <span class="trend text-muted">1 queued</span>
+                </div>
+            </section>
+
+            <!-- BOTTOM CONTENT SPLIT GRID -->
+            <div class="content-split">
+                
+                <!-- CATALOG BREAKDOWN (TREEMAP VISUAL) -->
+                <div class="panel breakdown-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Catalog Breakdown</h2>
+                            <p class="panel-subtitle">Box size shows product count, shade shows missing content</p>
+                        </div>
+                    </div>
+                    
+                    <div class="treemap-grid">
+                        <div class="tree-box purple-dark" style="grid-area: electronics;">
+                            <h4>Electronics</h4>
+                            <p>3,214 products</p>
+                            <div class="percentage">12% missing</div>
+                        </div>
+                        <div class="tree-box grey-light" style="grid-area: home;">
+                            <h4>Home & Living</h4>
+                            <p>2,140 products</p>
+                            <div class="percentage">7% missing</div>
+                        </div>
+                        <div class="tree-box purple-medium" style="grid-area: fashion;">
+                            <h4>Fashion</h4>
+                            <p>1,988 products</p>
+                            <div class="percentage">26% missing</div>
+                        </div>
+                        <div class="tree-box grey-lightest" style="grid-area: books;">
+                            <h4>Books</h4>
+                            <p>2,871 products</p>
+                            <div class="percentage">2% missing</div>
+                        </div>
+                        <div class="tree-box grey-medium" style="grid-area: beauty;">
+                            <h4>Beauty</h4>
+                            <p>1,204 products</p>
+                            <div class="percentage">10% missing</div>
+                        </div>
+                        <div class="tree-box purple-bright" style="grid-area: sports;">
+                            <h4>Sports & Outdoor</h4>
+                            <p>806 products</p>
+                            <div class="percentage">21% missing</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALERTS PANEL -->
+                <div class="panel alerts-panel">
+                    <div class="panel-header flex-header">
+                        <h2>Alerts</h2>
+                        <span class="badge-pill red">12 Open</span>
+                    </div>
+
+                    <div class="alert-list">
+                        <div class="alert-item type-critical">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="alert-body">
+                                <strong>Pricing error: sale price below cost on 17 products</strong>
+                                <small>Electronics • 4 min ago · <a href="#">Review</a></small>
+                            </div>
+                        </div>
+                        <div class="alert-item type-critical">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="alert-body">
+                                <strong>Trendyol rejected 23 products: required attribute missing</strong>
+                                <small>Fashion • 18 min ago · <a href="#">Fix</a></small>
+                            </div>
+                        </div>
+                        <div class="alert-item type-warning">
+                            <span class="alert-icon">🔸</span>
+                            <div class="alert-body">
+                                <strong>58 SKUs in Toys will run out within 3 days</strong>
+                                <small>Toys • 1 hr ago · <a href="#">Reorder</a></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

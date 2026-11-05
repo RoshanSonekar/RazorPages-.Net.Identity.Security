@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Market Admin</title>
+    <style>
+	:root {
+    --primary-blue: #0d6efd;
+    --bg-light: #f4f7fe;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #f1f5f9;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: #cbd5e1; /* outer canvas tone */
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-container {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    width: 100%;
+    max-width: 1280px;
+    background-color: var(--bg-light);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+/* SIDEBAR SYSTEM */
+.sidebar {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    padding: 32px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 0 24px;
+    margin-bottom: 40px;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    padding: 14px 24px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    color: var(--white);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.active {
+    color: var(--primary-blue);
+    background-color: var(--white);
+    font-weight: 600;
+    border-radius: 0;
+}
+
+.sidebar-footer {
+    padding: 0 24px;
+    font-size: 12px;
+}
+
+.sidebar-footer .copyright {
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+}
+
+/* MAIN BODY AREA */
+.main-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.top-header {
+    background-color: var(--white);
+    height: 70px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.notification-bell {
+    position: relative;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.bell-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: #ef4444;
+    color: white;
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 50%;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info h4 {
+    font-size: 13px;
+    color: var(--text-dark);
+}
+
+.user-info .role {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* CONTENT CONTAINER PANEL */
+.content-panel {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.panel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.title-row h1 {
+    font-size: 24px;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.count-badge {
+    background-color: #e2e8f0;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.tabs {
+    display: flex;
+    gap: 24px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding-bottom: 8px;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.tab-btn.active {
+    color: var(--primary-blue);
+    border-bottom: 2px solid var(--primary-blue);
+    font-weight: 600;
+    margin-bottom: -2px;
+}
+
+.action-row {
+    display: flex;
+    gap: 16px;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.search-container input {
+    background-color: var(--white);
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px 12px 10px 36px;
+    font-size: 14px;
+    width: 220px;
+    outline: none;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* DATA TABLE PANEL */
+.table-container {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 12px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.01);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.data-table th {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    font-size: 14px;
+    color: var(--text-dark);
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.text-popular {
+    color: #b134af;
+    font-weight: 500;
+}
+
+.action-cell {
+    position: relative;
+}
+
+.dots {
+    cursor: pointer;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+/* DROPDOWN FLYOUT MENU */
+.dropdown-menu {
+    position: absolute;
+    right: 16px;
+    top: 40px;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    z-index: 10;
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0;
+}
+
+.dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.dropdown-link:hover {
+    background-color: var(--bg-light);
+}
+
+.dropdown-link.delete-btn {
+    color: #ef4444;
+}
+
+.menu-icon {
+    font-size: 14px;
+}
+	</style>
+</head>
+<body>
+
+    <div class="admin-container">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Cash Market</h2>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📥</span> Orders
+                </a>
+                <a href="#" class="nav-item active">
+                    <span class="icon">🎁</span> Products
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📈</span> Reports
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">✉️</span> Messages
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">👥</span> Customers
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p><strong>Cash Market</strong></p>
+                <p class="copyright">All rights reserved</p>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-body">
+            
+            <!-- HEADER -->
+            <header class="top-header">
+                <div class="user-profile">
+                    <div class="notification-bell">
+                        🔔<span class="bell-badge">3</span>
+                    </div>
+                    <img src="https://placeholder.com" alt="Avatar" class="avatar">
+                    <div class="user-info">
+                        <h4>Oluwakemi Adeleke</h4>
+                        <span class="role">Admin</span>
+                    </div>
+                    <span class="dropdown-arrow">▼</span>
+                </div>
+            </header>
+
+            <!-- CONTENT PANEL -->
+            <main class="content-panel">
+                
+                <!-- TITLE & CONTROLS -->
+                <div class="panel-top">
+                    <div class="title-tabs">
+                        <div class="title-row">
+                            <h1>Products</h1>
+                            <span class="count-badge">150</span>
+                        </div>
+                        <div class="tabs">
+                            <button class="tab-btn active">All</button>
+                            <button class="tab-btn">Categories</button>
+                        </div>
+                    </div>
+                    
+                    <div class="action-row">
+                        <div class="search-container">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" placeholder="Search by name">
+                        </div>
+                        <button class="btn-primary">+ Add new item</button>
+                    </div>
+                </div>
+
+                <!-- DATA TABLE -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Item ID</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Brand</th>
+                                <th>Attribute</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1 with Open Dropdown Context Menu -->
+                            <tr>
+                                <td>MacBook Pro</td>
+                                <td>#20695</td>
+                                <td>Computer</td>
+                                <td>$560.00</td>
+                                <td>Konga</td>
+                                <td class="text-popular">Popular</td>
+                                <td class="action-cell">
+                                    <span class="dots">•••</span>
+                                    <!-- Context Dropdown Menu -->
+                                    <div class="dropdown-menu">
+                                        <a href="#" class="dropdown-link"><span class="menu-icon">✏️</span> Edit Product Details</a>
+                                        <a href="#" class="dropdown-link delete-btn"><span class="menu-icon">🗑️</span> Delete Product</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Row 2 -->
+                            <tr>
+                                <td>AirPods</td>
+                                <td>#20695</td>
+                                <td>Accessories</td>
+                                <td>$200.00</td>
+                                <td>Konga</td>
+                                <td class="text-popular">Popular</td>
+                                <td class="action-cell"><span class="dots">•••</span></td>
+                            </tr>
+                            <!-- Row 3 -->
+                            <tr>
+                                <td>Samsung A50</td>
+                                <td>#20695</td>
+                                <td>Android Phones</td>
+                                <td>$320.00</td>
+                                <td>Konga</td>
+                                <td class="text-popular">Popular</td>
+                                <td class="action-cell"><span class="dots">•••</span></td>
+                            </tr>
+                            <!-- Row 4 -->
+                            <tr>
+                                <td>Fashion Bag</td>
+                                <td>#20695</td>
+                                <td>Party Bags</td>
+                                <td>$150.00</td>
+                                <td>Konga</td>
+                                <td class="text-popular">Popular</td>
+                                <td class="action-cell"><span class="dots">•••</span></td>
+                            </tr>
+                            <!-- Row 5 -->
+                            <tr>
+                                <td>iWatch series 5</td>
+                                <td>#20695</td>
+                                <td>Accessories</td>
+                                <td>$200.00</td>
+                                <td>Konga</td>
+                                <td class="text-popular">Popular</td>
+                                <td class="action-cell"><span class="dots">•••</span></td>
+                            </tr>
+                            <!-- Row 6 -->
+                            <tr>
+                                <td>Office Table</td>
+                                <td>#20695</td>
+                                <td>Furniture</td>
+                                <td>$150.00</td>
+                                <td>Konga</td>
+                                <td class="text-popular">Popular</td>
+                                <td class="action-cell"><span class="dots">•••</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>

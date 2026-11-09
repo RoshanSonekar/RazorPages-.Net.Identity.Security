@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 
 // Add authentication
 builder.Services.AddAuthentication(options =>
@@ -37,11 +39,16 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+
+app.MapOpenApi();
+app.MapScalarApiReference();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

@@ -43,7 +43,6 @@ namespace WebAPI.Controllers
 				{
 					access_token = CreateToken(claims, expireAt),
 					expired_At = expireAt
-
 				});
 			}
 

@@ -14,7 +14,7 @@ namespace UserProfileService.Controllers
 			 userProfile = _userProfile;
 		}
 
-		[HttpPost]
+		[HttpPost("User")]
 		public async Task<IActionResult> CreateUserProfile([FromBody] Models.UserProfileModel user)
 		{
 			if (userProfile is null)
@@ -33,7 +33,7 @@ namespace UserProfileService.Controllers
 			return BadRequest(new { success = false, message = "Failed to create user profile." });
 		}
 
-		[HttpPut]
+		[HttpPut("User")]
 		public async Task<IActionResult> UpdateUserProfile([FromBody] Models.UserProfileModel user)
 		{
 			if (userProfile is null)
@@ -52,7 +52,7 @@ namespace UserProfileService.Controllers
 			return BadRequest(new { success = false, message = "Failed to update user profile. Kindly check the request and mandatory fields. Ex- Id must be exist to update the record."  });
 		}
 
-		[HttpGet("{userId:guid}")]
+		[HttpGet("User/{userId:guid}")]
 		public async Task<IActionResult> GetUserProfilePayload([FromRoute] Guid userId)
 		{
 			if (userId == Guid.Empty)

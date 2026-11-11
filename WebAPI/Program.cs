@@ -1,44 +1,49 @@
+using AuthService.Data;
+using AuthService.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// Add authentication
+string connectionString = builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+	options.UseSqlServer(connectionString);
+});
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+		.AddEntityFrameworkStores<ApplicationDbContext>();
+
+// JWT Authentication Setup
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "A_Very_Long_And_Super_Secret_Key_64_Bytes!"; // placeholder secret key; get it from azure key vault or environment variable in production
+var key = Encoding.UTF8.GetBytes(jwtSecret);
+
 builder.Services.AddAuthentication(options =>
 {
 	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-	.AddJwtBearer(options =>
-	{
-		options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-		{
-			ValidateIssuer = false,
-			ValidateAudience = false,
-			ValidateLifetime = true,
-			ValidateIssuerSigningKey = true,
-			IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["SecretKey"] ?? string.Empty)),
-			ClockSkew = TimeSpan.Zero
-		};
-	});
-
-// Add autorisation
-builder.Services.AddAuthorization(options=>
+.AddJwtBearer(options =>
 {
-	options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuerSigningKey = true,
+		IssuerSigningKey = new SymmetricSecurityKey(key),
+		ValidateIssuer = false,
+		ValidateAudience = false
+	};
 });
+builder.Services.AddAuthorization();  
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-
 
 app.MapOpenApi();
 app.MapScalarApiReference();
@@ -49,6 +54,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();

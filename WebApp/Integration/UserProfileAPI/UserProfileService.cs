@@ -27,12 +27,12 @@ namespace WebAppAuthentication.Integration.UserProfileAPI
 			var client = httpClientFactory.CreateClient("UserProfileService");
 			if (!IsProfileExist)
 			{
-				using HttpResponseMessage response = await client.PostAsJsonAsync("UserProfile", userProfile);
+				using HttpResponseMessage response = await client.PostAsJsonAsync("UserProfile/user", userProfile);
 				response.EnsureSuccessStatusCode();
 			}
 			else
 			{
-				using HttpResponseMessage response = await client.PutAsJsonAsync("UserProfile", userProfile);
+				using HttpResponseMessage response = await client.PutAsJsonAsync("UserProfile/user", userProfile);
 				response.EnsureSuccessStatusCode();
 			}
 			return IsProfileExist;
@@ -42,7 +42,7 @@ namespace WebAppAuthentication.Integration.UserProfileAPI
 		public async Task<IActionResult> GetUserProfile(Guid userId)
 		{
 			var client = httpClientFactory.CreateClient("UserProfileService");
-			string requestUri = $"UserProfile/{userId}";
+			string requestUri = $"UserProfile/user/{userId}";
 
 			using HttpResponseMessage response = await client.GetAsync(requestUri);
 

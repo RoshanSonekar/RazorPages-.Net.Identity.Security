@@ -1,0 +1,41 @@
+﻿  ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+    ADD [RefreshToken] NVARCHAR(MAX) NULL;
+
+    ALTER TABLE [AppUsers].[dbo].[AspNetUsers]
+    ADD [RefreshTokenExpiryTime] DATETIME2(7) NOT NULL DEFAULT '0001-01-01 00:00:00.0000000';
+
+      insert into [AppUsers].[dbo].[AspNetUserClaims]
+  ([UserId],[ClaimType],[ClaimValue])
+  values ('5ad92191-9c04-436c-a9c5-311d4c986573', 'DapperAPI','Readonly');
+
+  Create Roles
+  IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [Name] = 'Admin')
+BEGIN
+    INSERT INTO [dbo].[AspNetRoles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp])
+    VALUES (NEWID(), 'Admin', 'ADMIN', NEWID());
+END;
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [Name] = 'Manager')
+BEGIN
+    INSERT INTO [dbo].[AspNetRoles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp])
+    VALUES (NEWID(), 'Manager', 'MANAGER', NEWID());
+END;
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [Name] = 'Viewer')
+BEGIN
+    INSERT INTO [dbo].[AspNetRoles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp])
+    VALUES (NEWID(), 'Viewer', 'VIEWER', NEWID());
+END;
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [Name] = 'Reader')
+BEGIN
+    INSERT INTO [dbo].[AspNetRoles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp])
+    VALUES (NEWID(), 'Reader', 'READER', NEWID());
+END;
+
+
+Assign roles to user
+  insert into [AppUsers].[dbo].[AspNetUserRoles]
+  ([UserId],[RoleId]) values ('5ad92191-9c04-436c-a9c5-311d4c986573','F918D7E6-2C66-489C-981B-ABD50849ADE9');
+    insert into [AppUsers].[dbo].[AspNetUserRoles]
+  ([UserId],[RoleId]) values ('1ed3733b-3e44-432a-9e3f-9a8f07989e1f','22711A00-105F-464E-BC0E-2E6CA4076EF5');

@@ -1,92 +1,142 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.JsonWebTokens;
+﻿using AuthService.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text; 
+using System.Security.Cryptography;
 
-namespace WebAPI.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
 {
-	[Route("[controller]")]
-	[ApiController]
-	public class AuthController : ControllerBase
+	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly IConfiguration _configuration;
+
+	public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
 	{
-		private readonly IConfiguration configuration;
-		public AuthController(IConfiguration _configuration)
-		{
-			configuration= _configuration;
-		}
+		_userManager = userManager;
+		_configuration = configuration;
+	}
 
-		[HttpPost]
-		public IActionResult Authenticate([FromBody] Credential credential)
-		{
-			if (credential is null)
-				throw new ArgumentNullException(nameof(credential));
-			if (string.IsNullOrWhiteSpace(credential.UserName) || string.IsNullOrWhiteSpace(credential.Password))
-				throw new ArgumentException("Provide username and password");
+	[HttpPost("login")]
+	public async Task<IActionResult> Login([FromBody] UserCredentialModel model)
+	{
+		var user = await _userManager.FindByEmailAsync(model.Email);
 
-			// verify credentials
-			if (credential.UserName == "admin" && credential.Password == "password")
-			{
-				// create security context
-				var claims = new List<Claim>
+		if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+			return Unauthorized("Invalid credentials.");
+
+		var authClaims = new List<Claim>
 				{
-					new Claim(ClaimTypes.Name, "admin"),
-					new Claim(ClaimTypes.Email, "admin@gmail.com"),
-					new Claim("Admin","true"),
-					new Claim("Manager","true"),
-					new Claim("Department","HR"), // custom claim for authorisation policy >> to get from DB
-					new Claim("EmploymentDate","2025-09-09"),
+						//new Claim(ClaimTypes.Name, user.UserName ?? ""),
+						new Claim(ClaimTypes.NameIdentifier, user.Id),
+						new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 				};
 
-				var expireAt = DateTime.UtcNow.AddMinutes(2);
-				return Ok(new
-				{
-					access_token = CreateToken(claims, expireAt),
-					expired_At = expireAt
-				});
-			}
-
-			ModelState.AddModelError("Unauthorized", "You are not authorized to access this endpoint");
-			var problemDetails = new ProblemDetails
-			{
-				Title = "Unauthorized",
-				Status = StatusCodes.Status401Unauthorized
-			};
-			return Unauthorized(problemDetails);
-
-		}
-
-		private string CreateToken(List<Claim> claims, DateTime expireAt)
+		var userRoles = await _userManager.GetRolesAsync(user);
+		foreach (var role in userRoles)
 		{
-			var claimDictionary =  new Dictionary<string, object>();
-			if (claims is not null && claims.Count > 0)
-			{
-				foreach (var claim in claims)
-					claimDictionary.Add(claim.Type, claim.Value);
-
-			}
-
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Claims = claimDictionary,
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(
-					System.Text.Encoding.UTF8.GetBytes(configuration["SecretKey"]??string.Empty)), 
-					SecurityAlgorithms.HmacSha256Signature),
-				Expires = expireAt,
-
-			};
-			var tokenHandler = new JsonWebTokenHandler();
-			return tokenHandler.CreateToken(tokenDescriptor);
-
+			authClaims.Add(new Claim(ClaimTypes.Role, role));
 		}
+		// 3. Fetch and add Custom Claims (from AspNetUserClaims)
+		var userClaims = await _userManager.GetClaimsAsync(user);
+		foreach (var claim in userClaims)
+		{
+			// 💡 This preserves whatever Type and Value are configured in your DB rows
+			// e.g., Type: "Permission", Value: "CanDelete"
+			authClaims.Add(new Claim(claim.Type, claim.Value));
+		}
+
+		// Generate tokens
+		var accessToken = GenerateAccessToken(authClaims);
+		var refreshToken = GenerateRefreshToken();
+
+		// Save refresh token to database
+		user.RefreshToken = refreshToken;
+		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Long-lived
+		await _userManager.UpdateAsync(user);
+
+		return Ok(new TokenResponse(accessToken, refreshToken));
 	}
 
-	public class Credential
+	[HttpPost("refresh")]
+	public async Task<IActionResult> Refresh([FromBody] TokenRequestModel model)
 	{
-		[Required]
-		public string UserName { get; set; } = string.Empty;
+		if (model == null || string.IsNullOrEmpty(model.AccessToken) || string.IsNullOrEmpty(model.RefreshToken))
+			return BadRequest("Invalid client request.");
 
-		[Required]
-		public string Password { get; set; } = string.Empty;
+		// 1. Extract claims from the EXPIRED access token
+		var principal = GetPrincipalFromExpiredToken(model.AccessToken);
+		if (principal == null)
+			return BadRequest("Invalid access token or refresh token.");
+
+		// 2. Locate user based on token claims
+		var username = principal.Identity?.Name;
+		var user = await _userManager.FindByNameAsync(username);
+
+		// 3. Validate the refresh token against database records
+		if (user == null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+			return BadRequest("Invalid access token or refresh token.");
+
+		// 4. Token Rotation: Generate a brand-new pair
+		var newAccessToken = GenerateAccessToken(principal.Claims);
+		var newRefreshToken = GenerateRefreshToken();
+
+		user.RefreshToken = newRefreshToken;
+		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+		await _userManager.UpdateAsync(user);
+
+		return Ok(new TokenResponse(newAccessToken, newRefreshToken));
 	}
-}
+
+	// --- HELPER METHODS ---
+
+	private string GenerateAccessToken(IEnumerable<Claim> claims)
+	{
+		var jwtSecret = _configuration["Jwt:Secret"] ?? "A_Very_Long_And_Super_Secret_Key_64_Bytes!";
+		var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+		var tokenDescriptor = new SecurityTokenDescriptor
+		{
+			Subject = new ClaimsIdentity(claims),
+			Expires = DateTime.UtcNow.AddMinutes(15), // Short-lived access token
+			SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256Signature)
+		};
+
+		var tokenHandler = new JwtSecurityTokenHandler();
+		var token = tokenHandler.CreateToken(tokenDescriptor);
+		return tokenHandler.WriteToken(token);
+	}
+
+	private string GenerateRefreshToken()
+	{
+		var randomNumber = new byte[64];
+		using var rng = RandomNumberGenerator.Create();
+		rng.GetBytes(randomNumber);
+		return Convert.ToBase64String(randomNumber);
+	}
+
+	private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+	{
+		var jwtSecret = _configuration["Jwt:Secret"] ?? "A_Very_Long_And_Super_Secret_Key_64_Bytes!";
+		var tokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateAudience = false,
+			ValidateIssuer = false,
+			ValidateIssuerSigningKey = true,
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+			ValidateLifetime = false // Critical: We want to read claims from an EXPIRED token
+		};
+
+		var tokenHandler = new JwtSecurityTokenHandler();
+		var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+
+		if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+				!jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature, StringComparison.InvariantCultureIgnoreCase))
+			return null;
+
+		return principal;
+	}
+} 

@@ -52,7 +52,7 @@ public class LoginModel : PageModel
 			ModelState.AddModelError("Login", "Something went wrong. Please try again.");
 			return Page();
 		}
-			 var result = await signInManager.PasswordSignInAsync(
+			  var result = await signInManager.PasswordSignInAsync(
 				Credential.Email,
 				Credential.Password,
 				isPersistent: Credential.RememberMe,
@@ -75,7 +75,7 @@ public class LoginModel : PageModel
 					var isTwoFactorEnabled = await signInManager.UserManager.GetTwoFactorEnabledAsync(loggedInuser);
 					if (!isTwoFactorEnabled)
 						return RedirectToPage("/Account/AuthenticatorWithMFASetup");
-				}
+				}	
 			}
 			return RedirectToPage("/Index");
 		}

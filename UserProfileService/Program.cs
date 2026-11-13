@@ -50,7 +50,6 @@ app.UseHealthChecks("/health",
 		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 	});
 
-
 app.MapOpenApi(); 
 app.MapScalarApiReference();
 
